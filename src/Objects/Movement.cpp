@@ -40,5 +40,6 @@ void Movement::Step() {
   if ((d > 0.0 && *axis > target) || (d < 0.0 && *axis < target)) {
     *axis = target;
     moving = false;
+//    map::active_map->active->DrawMap(x, y);
   }
 }

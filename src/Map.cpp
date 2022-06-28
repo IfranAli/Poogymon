@@ -146,26 +146,30 @@ namespace map {
     if ((direction > 0 && *axis > target) || (direction < 0 && *axis < target)) {
       *axis = target;
       moving = false;
+
+//      active_map->active->DrawMap(x, y);
     }
   }
 
   Map::Map(const std::string &master_file_name) {
     auto files = ParseMapFile(master_file_name);
 
-    for (const auto &file: files) {
-      map_data_list[file.connection_type] = map_data::MapData(file.filename, file.texture_filenames.front());
-      switch (file.connection_type) {
-        case ACTIVE:break;
-        case LEFT_CONNECTION:map_data_list[MapIndex::ACTIVE].connections.Left = &map_data_list[file.connection_type];
-          break;
-        case RIGHT_CONNECTION:map_data_list[MapIndex::ACTIVE].connections.Right = &map_data_list[file.connection_type];
-          break;
-        case TOP_CONNECTION:map_data_list[MapIndex::ACTIVE].connections.Up = &map_data_list[file.connection_type];
-          break;
-        case BOTTOM_CONNECTION:map_data_list[MapIndex::ACTIVE].connections.Down = &map_data_list[file.connection_type];
-          break;
-      }
-    }
+    auto file = files.front();
+    map_data_list[MapIndex::ACTIVE] = map_data::MapData(file.filename, file.texture_filenames.front());
+//    for (const auto &file: files) {
+//      map_data_list[file.connection_type] = map_data::MapData(file.filename, file.texture_filenames.front());
+//      switch (file.connection_type) {
+//        case ACTIVE:break;
+////        case LEFT_CONNECTION:map_data_list[MapIndex::ACTIVE].connections.Left = &map_data_list[file.connection_type];
+//          break;
+////        case RIGHT_CONNECTION:map_data_list[MapIndex::ACTIVE].connections.Right = &map_data_list[file.connection_type];
+//          break;
+////        case TOP_CONNECTION:map_data_list[MapIndex::ACTIVE].connections.Up = &map_data_list[file.connection_type];
+//          break;
+////        case BOTTOM_CONNECTION:map_data_list[MapIndex::ACTIVE].connections.Down = &map_data_list[file.connection_type];
+//          break;
+//      }
+//    }
 
     AddMapData(map_data_list[MapIndex::ACTIVE]);
 
@@ -235,15 +239,51 @@ namespace map {
       return;
     }
 
+    int x = this->x * config::TILE_DIM;
+    int y = this->y * config::TILE_DIM;
+    auto screen_w = config::TILE_DIM * 15;
+    auto screen_h = config::TILE_DIM * 10;
+    SDL_Rect src{x, y, screen_w, screen_h};
+    SDL_Rect dest{0, 0, screen_w, screen_h};
+
+    config::RecalculateWindowVariables(screen_w, screen_h);
+
+    SDL_RenderCopy(
+        sdl::renderer,
+        map::active_map->active->map_texture.mTexture,
+        &src,
+        &dest
+    );
+
+    return;
+
     auto total_map_width = total_width_;
     auto active_map_width = active->map_width;
     auto offset_x_by = (x + config::TILE_PER_COL) - active_map_width;
 
     SDL_Rect clip;
-    clip.x = x * config::TILE_DIM;
-    clip.y = y * config::TILE_DIM;
-    clip.w = config::SCREEN_WIDTH;
-    clip.h = config::SCREEN_HEIGHT;
+//    clip.x = x * config::TILE_DIM;
+//    clip.y = y * config::TILE_DIM;
+//    clip.w = config::SCREEN_WIDTH;
+//    clip.h = config::SCREEN_HEIGHT;
+//    clip.w = active->map_width * config::TILE_DIM;
+//    clip.h = active->map_height * config::TILE_DIM;
+//    clip.x = 0;
+//    clip.y = 0;
+
+    SDL_RenderCopy(
+        sdl::renderer,
+        active->map_texture.mTexture,
+        NULL,
+        NULL
+    );
+//    Texture::Render(
+//        active->map_texture, *sdl::renderer,
+//        0,
+//        0,
+//        &clip
+//    );
+    return;
 
     auto margin_left = 0;
     auto margin_right = 0;
@@ -286,6 +326,11 @@ namespace map {
     }
 
     // Draw Active
+//    clip.w = active->map_texture.mWidth;
+//    clip.h = active->map_texture.mHeight;
+//    clip.x = config::TILE_DIM * 4;
+//    clip.y = config::TILE_DIM * 4;
+
     auto start_draw_x = config::SCREEN_OFFSET_X + margin_left;
     Texture::Render(active->map_texture, *sdl::renderer,
                     start_draw_x, config::SCREEN_OFFSET_Y, &clip);
@@ -326,6 +371,10 @@ namespace map {
 
   void Map::LoadMap(size_t index) {
     map_data_list[index].LoadMap();
+  }
+
+  void Map::PrintMap(size_t index) {
+    map_data_list[index].PrintMap();
   }
 
   std::vector<std::string> Map::GetMapConnections() const {

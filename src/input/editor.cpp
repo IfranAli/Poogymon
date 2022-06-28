@@ -102,6 +102,14 @@ namespace editor {
     map::active_map->LoadMap(menu::lastSelectedIndex());
   }
 
+  void MapPrintDo() {
+    map::active_map->PrintMap(menu::lastSelectedIndex());
+  }
+
+  void MapPrint() {
+    generate::MapNamesToFunc(MapPrintDo);
+  }
+
   void MapLoad() {
     generate::MapNamesToFunc(MapLoadDo);
   }
@@ -117,12 +125,13 @@ namespace editor {
 
   void OpenMenu() {
     input::input_fn fn[]{
+        MapPrint,
         MapLoad,
         MapSave,
     };
 
     menu::AddMenu(
-        {"Load", "Save"}, fn
+        {"Print", "Load", "Save"}, fn
     );
   }
 

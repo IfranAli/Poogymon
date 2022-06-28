@@ -11,11 +11,16 @@ namespace config {
 
 // Game rendering params.
 constexpr int TILE_DIM = 32;
-constexpr int TILE_PER_COL = 15;
-constexpr int TILE_PER_ROW = 10;
+//constexpr int TILE_PER_COL = 15;
+//constexpr int TILE_PER_ROW = 15;
+constexpr int TILE_PER_COL = 20;
+constexpr int TILE_PER_ROW = 20;
 
-constexpr int SCREEN_WIDTH = TILE_PER_COL * TILE_DIM;
-constexpr int SCREEN_HEIGHT = TILE_PER_ROW * TILE_DIM;
+constexpr int TILE_PER_COL_SCREEN = 20;
+constexpr int TILE_PER_ROW_SCREEN = 20;
+
+constexpr int SCREEN_WIDTH = TILE_PER_COL_SCREEN * TILE_DIM;
+constexpr int SCREEN_HEIGHT = TILE_PER_ROW_SCREEN * TILE_DIM;
 
 //constexpr int WINDOW_WIDTH = 40 * TILE_DIM;
 //constexpr int WINDOW_HEIGHT = 20 * TILE_DIM;

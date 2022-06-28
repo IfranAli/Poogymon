@@ -111,42 +111,42 @@ void CharacterPlayer::Tick() {
 
   switch (direction) {
     case map::RIGHT:
-      if (movement.x == x_max && map::active_map->CanMoveRight()) {
+//      if (movement.x == x_max && map::active_map->CanMoveRight()) {
         movement.MoveSmooth(1, 0, true);
-      } else {
-        movement.MoveSmooth(1, 0);
-      }
+//      } else {
+//        movement.MoveSmooth(1, 0);
+//      }
       animation.Play_animation(8);
       break;
 
     case map::LEFT:
-      if (movement.x == x_min && map::active_map->CanMoveLeft()) {
+//      if (movement.x == x_min && map::active_map->CanMoveLeft()) {
         movement.MoveSmooth(-1, 0, true);
-      } else {
-        movement.MoveSmooth(-1, 0);
-      }
+//      } else {
+//        movement.MoveSmooth(-1, 0);
+//      }
       animation.Play_animation(4);
       break;
 
     case map::DOWN:
       // Can move down?
-      if (movement.y == y_max && map::active_map->CanMoveDown()) {
+//      if (movement.y == y_max && map::active_map->CanMoveDown()) {
         movement.MoveSmooth(0, 1, true);
-      } else {
-        movement.MoveSmooth(0, 1);
-      }
+//      } else {
+//        movement.MoveSmooth(0, 1);
+//      }
       animation.Play_animation(0);
 
       break;
 
     case map::UP:
       // Can move up?
-      if (movement.y == y_min && map::active_map->GetY() != 0) {
+//      if (movement.y == y_min && map::active_map->GetY() != 0) {
         //map::active_map->MoveSmooth(0, -1);
         movement.MoveSmooth(0, -1, true);
-      } else {
-        movement.MoveSmooth(0, -1);
-      }
+//      } else {
+//        movement.MoveSmooth(0, -1);
+//      }
       animation.Play_animation(12);
       break;
   }

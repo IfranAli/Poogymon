@@ -22,7 +22,7 @@ public:
 };
 
 void Render(Texture &t, SDL_Renderer &r, SDL_Rect *clip, SDL_Rect *scr);
-void Render(Texture &t, SDL_Renderer &r, int x, int y, SDL_Rect *clip);
+void Render(Texture &t, SDL_Renderer &r, int x, int y, SDL_Rect *src);
 bool LoadFromFile(Texture &t, SDL_Renderer &r, const char *path);
 void freeMem(Texture &t);
 void MakeEmpty(Texture &t, SDL_Renderer &r, size_t w, size_t h);

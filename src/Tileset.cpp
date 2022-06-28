@@ -43,9 +43,12 @@ namespace Texture {
   }
 
   void Render(SDL_Renderer &r, const Texture &texture, const tileset_info &info, int i, int x, int y) {
-    SDL_Rect src;
-    src.w = info.tile_width;
-    src.h = info.tile_height;
+    SDL_Rect src {
+      x,
+      y,
+      info.tile_width,
+      info.tile_height
+    };
 
     getTile(texture, info, i, src);
 
@@ -53,6 +56,8 @@ namespace Texture {
     SDL_Rect dest = src;
     dest.x = x;
     dest.y = y;
+    dest.w = 32;
+    dest.h = 32;
 
     SDL_RenderCopy(&r, texture.mTexture, &src, &dest);
   }

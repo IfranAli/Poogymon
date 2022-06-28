@@ -14,7 +14,7 @@ struct Connections {
 
 class MapData {
  public:
-  void DrawMap();
+  void DrawMap(int x = 0, int y = 0);
   bool LoadMap(const std::string &p_file_name, const std::string &p_file_name_texture);
   void SaveMap(const std::string &filename);
   void SaveMap();

@@ -64,6 +64,7 @@ class Map final {
 
   void SaveMap(size_t index);
   void LoadMap(size_t index);
+  void PrintMap(size_t index);
 
   [[nodiscard]] std::vector<std::string> GetMapConnections() const;
 

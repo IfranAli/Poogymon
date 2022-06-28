@@ -135,11 +135,12 @@ void Start() {
     SDL_RenderClear(sdl::renderer);
 
     m_map.Tick();
-    m_map.RenderToScreen();
 
     if (player::is_visible) {
       player::player->Tick();
     }
+
+    map::active_map->RenderToScreen();
 
     render::DrawStack();
     dialog::update_labels(sdl::deltatime);
