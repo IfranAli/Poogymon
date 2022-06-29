@@ -29,15 +29,3 @@ void RecalculateWindowVariables(int w, int h, int x, int y) {
 }
 
 } /* namespace config */
-
-
-namespace render {
-void DrawRectangle(SDL_Rect &rect, bool relative) {
-  if (relative) {
-    rect.x += config::SCREEN_OFFSET_X;
-    rect.y += config::SCREEN_OFFSET_Y;
-  }
-
-  SDL_RenderDrawRect(sdl::renderer, &rect);
-}
-} /* namespace render */

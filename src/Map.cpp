@@ -234,19 +234,19 @@ namespace map {
 
   int Map::GetY() const { return y; }
 
-  void Map::RenderToScreen() const {
+  void Map::RenderToScreen(FrameConfig frame_config, bool recalculate) const {
     if (active == nullptr) {
       return;
     }
 
-    int x = this->x * config::TILE_DIM;
-    int y = this->y * config::TILE_DIM;
+    int xpos = this->x * config::TILE_DIM;
+    int ypos = this->y * config::TILE_DIM;
     auto screen_w = config::TILE_DIM * 15;
     auto screen_h = config::TILE_DIM * 10;
-    SDL_Rect src{x, y, screen_w, screen_h};
+    SDL_Rect src{xpos, ypos, screen_w, screen_h};
     SDL_Rect dest{0, 0, screen_w, screen_h};
 
-    config::RecalculateWindowVariables(screen_w, screen_h);
+//    config::RecalculateWindowVariables(screen_w, screen_h);
 
     SDL_RenderCopy(
         sdl::renderer,
@@ -254,87 +254,8 @@ namespace map {
         &src,
         &dest
     );
-
-    return;
-
-    auto total_map_width = total_width_;
-    auto active_map_width = active->map_width;
-    auto offset_x_by = (x + config::TILE_PER_COL) - active_map_width;
-
-    SDL_Rect clip;
-//    clip.x = x * config::TILE_DIM;
-//    clip.y = y * config::TILE_DIM;
-//    clip.w = config::SCREEN_WIDTH;
-//    clip.h = config::SCREEN_HEIGHT;
-//    clip.w = active->map_width * config::TILE_DIM;
-//    clip.h = active->map_height * config::TILE_DIM;
-//    clip.x = 0;
-//    clip.y = 0;
-
-    SDL_RenderCopy(
-        sdl::renderer,
-        active->map_texture.mTexture,
-        NULL,
-        NULL
-    );
-//    Texture::Render(
-//        active->map_texture, *sdl::renderer,
-//        0,
-//        0,
-//        &clip
-//    );
-    return;
-
-    auto margin_left = 0;
-    auto margin_right = 0;
-
-    // 0,0 is the active map.
-    if (x >= 0) {
-      // Draw Right
-      if ((offset_x_by > 0) && active->connections.Right) {
-        SDL_Rect clip_east = {0, clip.y, clip.w, clip.h};
-
-        auto relative_offset_x = config::TILE_PER_COL - offset_x_by;
-        auto start_draw_x = config::SCREEN_OFFSET_X;
-        if (relative_offset_x < 0) {
-          clip_east.x = abs(relative_offset_x) * config::TILE_DIM;
-          start_draw_x = config::SCREEN_OFFSET_X;
-        } else {
-          start_draw_x += (relative_offset_x * config::TILE_DIM);
-        }
-
-        Texture::Render(active->connections.Right->map_texture, *sdl::renderer,
-                        start_draw_x, config::SCREEN_OFFSET_Y, &clip_east);
-
-        clip.w -= (offset_x_by * config::TILE_DIM);
-      }
-    } else {
-      if (active->connections.Left) {
-        // render left map
-        SDL_Rect clip_west = {0, clip.y, clip.w, clip.h};
-
-        auto start_draw_x = config::SCREEN_OFFSET_X;
-        clip_west.w = abs(x) * config::TILE_DIM;
-        margin_left = clip_west.w;
-        clip_west.x = (active->connections.Left->map_width - abs(x)) * config::TILE_DIM;
-
-        Texture::Render(active->connections.Left->map_texture, *sdl::renderer,
-                        start_draw_x, config::SCREEN_OFFSET_Y, &clip_west);
-        clip.w -= clip_west.w;
-        clip.x = 0;
-      }
-    }
-
-    // Draw Active
-//    clip.w = active->map_texture.mWidth;
-//    clip.h = active->map_texture.mHeight;
-//    clip.x = config::TILE_DIM * 4;
-//    clip.y = config::TILE_DIM * 4;
-
-    auto start_draw_x = config::SCREEN_OFFSET_X + margin_left;
-    Texture::Render(active->map_texture, *sdl::renderer,
-                    start_draw_x, config::SCREEN_OFFSET_Y, &clip);
   }
+
 // TODO: Only supports one block movements for now
 
   int Map::GetTileFromMouse(int mx, int my) const {

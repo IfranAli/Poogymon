@@ -68,6 +68,8 @@ namespace map_data {
         auto x_dim = 32 * j;
         auto y_dim = 32 * i;
         auto tile = GetTile(j, i);
+
+        Texture::Render(*sdl::renderer, map_tileset, 0, x_dim, y_dim);
         Texture::Render(*sdl::renderer, map_tileset, tile, x_dim, y_dim);
       }
     }

@@ -46,5 +46,4 @@ Drawable *AddToRenderStack(Drawable *);
 bool RemoveFromRenderStack(Drawable *);
 void DrawStack();
 
-void DrawRectangle(SDL_Rect &rect, bool relative = true);
 }
