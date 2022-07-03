@@ -336,4 +336,4 @@ namespace map {
   int Map::GetYMin() const {
     return y_min_;
   }
-} /*namespace map */
+} /*namespace map_ */

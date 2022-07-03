@@ -3,7 +3,6 @@
 //
 
 #include <SDL.h>
-#include <math.h>
 #include <string>
 #include <iostream>
 #include "Game.h"
@@ -23,7 +22,7 @@ namespace {
 
 Game::Game() :
     map_(MASTER_FILE_NAME),
-    player_(frame_config_) {
+    player_(frame_config_, &map_) {
 
   map::active_map = &map_;
 
@@ -34,9 +33,7 @@ Game::Game() :
   }
 }
 
-Game::~Game() {
-
-}
+Game::~Game() = default;
 
 void Game::Start() {
 
@@ -45,8 +42,6 @@ void Game::Start() {
   dialog::add_item(sdl::deltatime, 0, 200);
 
   map::active_map->RenderToScreen(frame_config_);
-  CharacterPlayer player(frame_config_);
-//  player::player = &player;
 
   input::SetInputHandler(player::ih_player);
 
@@ -86,7 +81,7 @@ void Game::GameLoop() {
 //    if (player.draw_map) {
     map::active_map->RenderToScreen(frame_config_, true);
 //    } else {
-//      map::active_map->RenderToScreen(frame_config, false);
+//      map_::active_map->RenderToScreen(frame_config, false);
 //    }
 
     if (player::is_visible) {

@@ -84,7 +84,7 @@ namespace map {
     [[nodiscard]] int GetXMin() const;
     [[nodiscard]] int GetYMax() const;
     [[nodiscard]] int GetYMin() const;
-   private:
+
     int total_width_ = 0;
     int total_height_ = 0;
     int x_max_ = 0;
@@ -92,6 +92,7 @@ namespace map {
     int y_max_ = 0;
     int y_min_ = 0;
 
+   private:
     bool hide_rendering_border_ = true;
     bool show_tile_set_ = true;
   };
