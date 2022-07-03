@@ -60,11 +60,20 @@ namespace map {
 
   map_data::MapData &Map::GetConnection(MapIndex type) {
     switch (type) {
-      case ACTIVE:break;
-      case LEFT_CONNECTION:return *map_data_list[MapIndex::ACTIVE].connections.Left;
-      case RIGHT_CONNECTION:return *map_data_list[MapIndex::ACTIVE].connections.Right;
-      case TOP_CONNECTION:return *map_data_list[MapIndex::ACTIVE].connections.Up;
-      case BOTTOM_CONNECTION:return *map_data_list[MapIndex::ACTIVE].connections.Down;
+      case ACTIVE:
+        break;
+      case LEFT_CONNECTION:
+        return *map_data_list[MapIndex::ACTIVE].connections.Left;
+        break;
+      case RIGHT_CONNECTION:
+        return *map_data_list[MapIndex::ACTIVE].connections.Right;
+        break;
+      case TOP_CONNECTION:
+        return *map_data_list[MapIndex::ACTIVE].connections.Up;
+        break;
+      case BOTTOM_CONNECTION:
+        return *map_data_list[MapIndex::ACTIVE].connections.Down;
+        break;
     }
   }
 

@@ -56,8 +56,6 @@ namespace Texture {
     SDL_Rect dest = src;
     dest.x = x;
     dest.y = y;
-    dest.w = info.tile_width;
-    dest.h = info.tile_width;
 
     SDL_RenderCopy(&r, texture.mTexture, &src, &dest);
   }

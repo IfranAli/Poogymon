@@ -1,5 +1,5 @@
 add_executable(game
-        Game.cpp
+        Main.cpp
         InputContext.cpp
         Timer.cpp
         Texture.cpp
@@ -19,7 +19,7 @@ add_executable(game
         input/dbgmenu.cpp
         input/editor.cpp
         input/player.cpp
-        interfaces/Drawable.h input/text_select.cpp input/text_select.h utility/Utility.cpp utility/Utility.h Renderer.cpp)
+        interfaces/Drawable.h input/text_select.cpp input/text_select.h utility/Utility.cpp utility/Utility.h Renderer.cpp Game.cpp Game.h Objects/FrameConfig.h)
 
 
 target_link_libraries(game ${SDL2_LIBRARIES})

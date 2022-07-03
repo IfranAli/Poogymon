@@ -5,27 +5,29 @@
 #include <iostream>
 
 namespace player {
-  CharacterPlayer *player{nullptr};
   bool is_visible{false};
-  bool draw_bounds{false};
+  bool draw_bounds{true};
 }
 
 void CharacterPlayer::ResetBoundingBox() {
+  auto config = frame_config_;
+
   /* Do not want neg values */
-  if (mov_boundary_x > ::config::TILE_PER_COL) { mov_boundary_x = ::config::TILE_PER_COL; }
-  if (mov_boundary_y > ::config::TILE_PER_ROW) { mov_boundary_y = ::config::TILE_PER_ROW; }
+  if (mov_boundary_x > config.cols) { mov_boundary_x = config.cols; }
+  if (mov_boundary_y > config.rows) { mov_boundary_y = config.rows; }
 
   /* Calc player limits */
-  x_max = ((::config::TILE_PER_COL + mov_boundary_x) / 2);
-  y_max = ((::config::TILE_PER_ROW + mov_boundary_y) / 2);
+  x_max = ((config.cols + mov_boundary_x) / 2);
+  y_max = ((config.rows + mov_boundary_y) / 2);
   x_min = x_max - mov_boundary_x;
   y_min = y_max - mov_boundary_y;
 
   /* Calc rect for drawing bounding box */
-  player_min_x = ::config::SCREEN_OFFSET_X + (x_min * ::config::TILE_DIM);
-  player_min_y = ::config::SCREEN_OFFSET_Y + (y_min * ::config::TILE_DIM);
-  player_max_x = (mov_boundary_x * ::config::TILE_DIM);
-  player_max_y = (mov_boundary_y * ::config::TILE_DIM);
+  // TODO:  screen offsets
+  player_min_x = config.offset_x + (x_min * config.tile_dimentions);
+  player_min_y = config.offset_y + (y_min * config.tile_dimentions);
+  player_max_x = (mov_boundary_x * config.tile_dimentions);
+  player_max_y = (mov_boundary_y * config.tile_dimentions);
 
   /* Place character inside bounds */
   Character::movement.x = static_cast<float>(x_min);
@@ -36,7 +38,7 @@ void CharacterPlayer::ResetBoundingBox() {
 
 CharacterPlayer::~CharacterPlayer() = default;
 
-CharacterPlayer::CharacterPlayer() {
+CharacterPlayer::CharacterPlayer(FrameConfig frame_config) : frame_config_(frame_config) {
   Texture::LoadFromFile(*sdl::renderer, texture, texture_path, 32, 48);
   ResetBoundingBox();
 }
@@ -109,53 +111,89 @@ void CharacterPlayer::Tick() {
 
   printf("X: %direction, Y: %direction\n", potential_x, potential_y);
 
+  auto canMoveRight = potential_x > 0 || potential_x != 20;
+  auto canMoveLeft = potential_x > 0;
+  auto canMoveUp = potential_y > 0;
+  auto canMoveDown = potential_y > 0 || potential_y != 20;
+
+  if (potential_x < 0 || potential_x > 20) {
+    return;
+  }
+
+  if (potential_y < 0 || potential_y > 20) {
+    return;
+  }
+
+  auto cols = 15;
+  auto rows = 10;
+
   switch (direction) {
+    //TODO: These variables arenot good.
     case map::RIGHT:
-//      if (movement.x == x_max && map::active_map->CanMoveRight()) {
+
+      if (movement.x == x_max) {
+        movement.MoveSmooth(1, 0);
+        animation.Play_animation(8);
+      }
+
+      if (potential_x > x_max) {
+        movement.MoveSmooth(1, 0);
+        animation.Play_animation(8);
+        return;
+      }
+
+      if (potential_x < x_max) {
+        movement.MoveSmooth(1, 0);
+        animation.Play_animation(8);
+      } else {
         movement.MoveSmooth(1, 0, true);
-//      } else {
-//        movement.MoveSmooth(1, 0);
-//      }
-      animation.Play_animation(8);
+        animation.Play_animation(8);
+      }
+
       break;
 
     case map::LEFT:
-//      if (movement.x == x_min && map::active_map->CanMoveLeft()) {
-        movement.MoveSmooth(-1, 0, true);
-//      } else {
-//        movement.MoveSmooth(-1, 0);
-//      }
+      if (potential_x >= 0 && potential_x <= 20) {
+        if (potential_x == x_min) {
+          movement.MoveSmooth(-1, 0, true);
+        } else {
+          movement.MoveSmooth(-1, 0);
+        }
+      }
+
       animation.Play_animation(4);
       break;
 
     case map::DOWN:
-      // Can move down?
-//      if (movement.y == y_max && map::active_map->CanMoveDown()) {
+//       Can move down?
+      if (movement.y == y_max && canMoveDown) {
         movement.MoveSmooth(0, 1, true);
-//      } else {
-//        movement.MoveSmooth(0, 1);
-//      }
+      } else {
+        movement.MoveSmooth(0, 1);
+      }
       animation.Play_animation(0);
 
       break;
 
     case map::UP:
       // Can move up?
-//      if (movement.y == y_min && map::active_map->GetY() != 0) {
-        //map::active_map->MoveSmooth(0, -1);
+      if (movement.y == y_min && canMoveUp) {
         movement.MoveSmooth(0, -1, true);
-//      } else {
-//        movement.MoveSmooth(0, -1);
-//      }
+      } else {
+        movement.MoveSmooth(0, -1);
+      }
       animation.Play_animation(12);
       break;
+
+//      map::active_map->x = movement.x;
+//      map::active_map->y = movement.x;
   }
 }
 
 void CharacterPlayer::Render() {
   // Render player
-  float rx = config::SCREEN_OFFSET_X + (movement.x * config::TILE_DIM);
-  float ry = config::SCREEN_OFFSET_Y + (movement.y * config::TILE_DIM) - 16;
+  float rx = frame_config_.offset_x + (movement.x * frame_config_.tile_dimentions);
+  float ry = frame_config_.offset_y + (movement.y * frame_config_.tile_dimentions) + 16;
 
   //printf("rx:%f, ry:%f\n", rx, ry);
   //pTexture->Render(animation.current_frame, &pRenderer, rx, ry);
@@ -165,12 +203,18 @@ void CharacterPlayer::Render() {
   // Player box
   if (player::draw_bounds) {
     auto player_box = SDL_Rect{player_min_x, player_min_y, player_max_x + 32, player_max_y + 32};
-    auto player_texture_box = SDL_Rect{(int) rx, (int) ry + 16, 32, 32};
-    auto map_box = SDL_Rect{0, 0, config::SCREEN_WIDTH, config::SCREEN_HEIGHT};
+    auto player_texture_box = SDL_Rect{(int) rx, (int) ry, 32, 32};
+    auto map_box = SDL_Rect{
+      frame_config_.offset_x,
+      frame_config_.offset_y,
+      frame_config_.width,
+      frame_config_.height
+    };
 
     SDL_SetRenderDrawColor(sdl::renderer, 0xFF, 0x00, 0x00, 0xFF);
-    render::DrawRectangle(player_box);
-    render::DrawRectangle(player_texture_box, false);
-    render::DrawRectangle(map_box);
+
+    SDL_RenderDrawRect(sdl::renderer, &player_box);
+    SDL_RenderDrawRect(sdl::renderer, &player_texture_box);
+    SDL_RenderDrawRect(sdl::renderer, &map_box);
   }
 }
