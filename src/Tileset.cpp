@@ -34,7 +34,7 @@ namespace Texture {
   bool LoadFromFile(SDL_Renderer &r, Texture &t, tileset_info &i, const char *path, int w, int h) {
     bool result = LoadFromFile(t, r, path);
     if (result)
-      i = getTilesetInfo(t, w, h);
+      i = getTilesetInfo(&t, w, h);
     return result;
   }
 
@@ -81,11 +81,11 @@ namespace Texture {
     clip.y = y;
   }
 
-  tileset_info getTilesetInfo(const Texture &texture, int w, int h) {
+  tileset_info getTilesetInfo(Texture* texture, int w, int h) {
     tileset_info info;
     info.tile_width = w;
     info.tile_height = h;
-    info.tile_per_row = (texture.mWidth / info.tile_width);
+    info.tile_per_row = (texture->mWidth / info.tile_width);
     return info;
   }
 

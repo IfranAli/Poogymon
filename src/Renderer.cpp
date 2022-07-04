@@ -12,20 +12,20 @@ int SCREEN_OFFSET_X = (WINDOW_WIDTH - ::config::SCREEN_WIDTH) / 2;
 int SCREEN_OFFSET_Y = (WINDOW_HEIGHT - ::config::SCREEN_HEIGHT) / 2;
 
 void RecalculateWindowVariables(int w, int h, int x, int y) {
-  WINDOW_WIDTH = w;
-  WINDOW_HEIGHT = h;
-
-  WINDOW_WIDTH = (w / TILE_DIM) * TILE_DIM;
-
-  if (x == 0 && y == 0) {
-    SCREEN_OFFSET_X = (WINDOW_WIDTH - ::config::SCREEN_WIDTH) / 2;
-    SCREEN_OFFSET_Y = (WINDOW_HEIGHT - ::config::SCREEN_HEIGHT) / 2;
-  } else {
-    SCREEN_OFFSET_X = x;
-    SCREEN_OFFSET_Y = y;
-  }
-
-  SDL_SetWindowSize(sdl::window, WINDOW_WIDTH, WINDOW_HEIGHT);
+//  WINDOW_WIDTH = w;
+//  WINDOW_HEIGHT = h;
+//
+//  WINDOW_WIDTH = (w / TILE_DIM) * TILE_DIM;
+//
+//  if (x == 0 && y == 0) {
+//    SCREEN_OFFSET_X = (WINDOW_WIDTH - ::config::SCREEN_WIDTH) / 2;
+//    SCREEN_OFFSET_Y = (WINDOW_HEIGHT - ::config::SCREEN_HEIGHT) / 2;
+//  } else {
+//    SCREEN_OFFSET_X = x;
+//    SCREEN_OFFSET_Y = y;
+//  }
+//
+//  SDL_SetWindowSize(sdl::window, WINDOW_WIDTH, WINDOW_HEIGHT);
 }
 
 } /* namespace config */

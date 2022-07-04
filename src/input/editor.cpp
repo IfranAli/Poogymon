@@ -74,23 +74,18 @@ namespace editor {
     if (editor::show_tileset) {
       auto texture_width = map::active_map->active->map_tileset.texture.mWidth;
 
-// TODO: Maybe look into passing dimentions like this.
-//    SDL_Rect dimentions = {
-//        .x = texture_width + ::config::SCREEN_WIDTH,
-//        .y = ::config::SCREEN_HEIGHT,
-//        .w = texture_width
-//    };
-
-      ::config::RecalculateWindowVariables(texture_width + ::config::SCREEN_WIDTH,
-                                           ::config::SCREEN_HEIGHT,
-                                           texture_width);
+//      ::config::RecalculateWindowVariables(
+//          texture_width + ::config::SCREEN_WIDTH,
+//          ::config::SCREEN_HEIGHT,
+//          texture_width
+//      );
     }
   }
 
   void OnDisable() {
     if (editor::show_tileset) {
       editor::show_tileset = false;
-      ::config::RecalculateWindowVariables();
+//      ::config::RecalculateWindowVariables();
     }
   }
 

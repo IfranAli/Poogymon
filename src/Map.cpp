@@ -252,6 +252,8 @@ namespace map {
     int ypos = this->y * config::TILE_DIM;
     auto screen_w = config::TILE_DIM * 15;
     auto screen_h = config::TILE_DIM * 10;
+//    SDL_Rect src{xpos, ypos, screen_w, screen_h};
+//    SDL_Rect dest{0, 0, screen_w, screen_h};
     SDL_Rect src{xpos, ypos, screen_w, screen_h};
     SDL_Rect dest{0, 0, screen_w, screen_h};
 

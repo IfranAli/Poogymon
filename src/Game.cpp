@@ -36,12 +36,11 @@ Game::Game() :
 Game::~Game() = default;
 
 void Game::Start() {
-
   input::InitInputMaps(&map_, &player_);
   sdl::deltatime = 0;
   dialog::add_item(sdl::deltatime, 0, 200);
 
-  map::active_map->RenderToScreen(frame_config_);
+//  map::active_map->RenderToScreen(frame_config_);
 
   input::SetInputHandler(player::ih_player);
 

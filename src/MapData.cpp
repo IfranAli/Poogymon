@@ -60,47 +60,42 @@ namespace map_data {
   }
 
   void MapData::DrawMap(int x, int y) {
+    FrameConfig frame_config;
+    auto dim = frame_config.tile_dimentions;
+
+    SDL_Rect grass_tile{0, 0, dim, dim};
+    SDL_Rect src_tile{1, 0, dim, dim};
+    SDL_Rect dest_tile = src_tile;
+    auto tileset_info = Texture::getTilesetInfo(&map_tileset.texture,dim, dim);
+
     // Set render target to texture
-    Texture::SetAsRenderTarget(map_texture, *sdl::renderer);
+    SDL_SetRenderTarget(sdl::renderer, map_texture.mTexture);
 
     for (int i = 0; i < 20; ++i) {
       for (int j = 0; j < 20; ++j) {
-        auto x_dim = 32 * j;
-        auto y_dim = 32 * i;
+        auto x_dim = dim * j;
+        auto y_dim = dim * i;
         auto tile = GetTile(j, i);
 
-        Texture::Render(*sdl::renderer, map_tileset, 0, x_dim, y_dim);
-        Texture::Render(*sdl::renderer, map_tileset, tile, x_dim, y_dim);
-      }
-    }
+        Texture::getTile(map_tileset.texture, tileset_info, tile, src_tile);
+        dest_tile.x = x_dim;
+        dest_tile.y = y_dim;
 
-    SDL_SetRenderTarget(sdl::renderer, NULL);
-    return;
-    int c = 0;
-    for (int i = 0; i < map_height; ++i) {
-      for (int j = 0; j < map_width; ++j) {
-        // Calcualte x, y render pos for dest texture
-        auto x_dim = TILE_DIM * j;
-        auto y_dim = TILE_DIM * i;
-
-        // Render tile at pos x, y
-        //map_tileset.Render(0, NULL, x, y); // Grass.
-        //map_tileset.Render(GetTile(j, i), NULL, x, y);
-        Texture::Render(
-            *sdl::renderer,
-            map_tileset,
-            1,
-            x_dim,
-            y_dim
+        SDL_RenderCopy(
+            sdl::renderer,
+            map_tileset.texture.mTexture,
+            &grass_tile,
+            &dest_tile
         );
-      Texture::Render(*sdl::renderer, map_tileset, GetTile(j, i), x_dim, y_dim);
-        c++;
+        SDL_RenderCopy(
+            sdl::renderer,
+            map_tileset.texture.mTexture,
+            &src_tile,
+            &dest_tile
+        );
       }
     }
 
-    std::printf("%s rendered %d tiles\n", filename.c_str(), c);
-
-    // Reset render target to screen
     SDL_SetRenderTarget(sdl::renderer, NULL);
   }
 
@@ -123,7 +118,7 @@ namespace map_data {
     for (unsigned i = 0; i < array_size; ++i) {
       unsigned int tile = 0;
       ifs >> tile;
-      std::cout << tile << ' ';
+//      std::cout << tile << ' ';
 
 //    ifs >> p_map_data[i];
       p_map_data[i] = tile;

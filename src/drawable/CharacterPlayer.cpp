@@ -1,12 +1,10 @@
 #include "CharacterPlayer.h"
 #include "../Renderer.h"
-#include "../Map.h"
 
-#include <iostream>
 
 namespace player {
-  bool is_visible{false};
-  bool draw_bounds{true};
+  bool is_visible = false;
+  bool draw_bounds = true;
 }
 
 void CharacterPlayer::ResetBoundingBox() {

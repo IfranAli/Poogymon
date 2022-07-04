@@ -22,7 +22,7 @@ namespace sdl {
   float deltatime = 0;
 
 /* load sdl resources */
-  bool SdlLoad() {
+  bool SdlLoad(FrameConfig frame_config) {
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
       printf("SDL initialisation failure: %s\n", SDL_GetError());
       return false;
@@ -30,7 +30,7 @@ namespace sdl {
 
 //  SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Hello world", "test description", sdl::window);
 
-    config::RecalculateWindowVariables(::config::SCREEN_WIDTH, ::config::SCREEN_HEIGHT);
+//    config::RecalculateWindowVariables(::config::SCREEN_WIDTH, ::config::SCREEN_HEIGHT);
     /* Init window */
     window = SDL_CreateWindow("Poogymon",
                               SDL_WINDOWPOS_UNDEFINED,
@@ -85,7 +85,8 @@ void Start() {
 }
 
 int main() {
-  if (!sdl::SdlLoad()) {
+  FrameConfig frame_config;
+  if (!sdl::SdlLoad(frame_config)) {
     return 1;
   }
 
