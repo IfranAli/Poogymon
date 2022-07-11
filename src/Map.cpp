@@ -59,7 +59,9 @@ namespace map {
 
   map_data::MapData &Map::GetConnection(MapIndex type) {
     switch (type) {
-      case ACTIVE:break;
+      case ACTIVE:
+        return map_data_list[ACTIVE];
+        break;
       case LEFT_CONNECTION:return *map_data_list[MapIndex::ACTIVE].connections.Left;
         break;
       case RIGHT_CONNECTION:return *map_data_list[MapIndex::ACTIVE].connections.Right;
@@ -76,7 +78,7 @@ namespace map {
   }
 
   bool Map::CanMoveDown() const {
-    auto result = ((y + config::TILE_PER_ROW + 1) <= y_max_);
+    auto result = ((y + frame_config_.GetRows() + 1) <= y_max_);
     return result;
   }
 
@@ -85,7 +87,7 @@ namespace map {
   }
 
   bool Map::CanMoveRight() const {
-    return ((x + config::TILE_PER_COL + 1) <= x_max_);
+    return ((x + frame_config_.GetCols() + 1) <= x_max_);
   }
 
   bool CanMove(Direction move_direction) {
@@ -154,12 +156,12 @@ namespace map {
     }
   }
 
-  Map::Map(const std::string &master_file_name) {
-    puts("Not implemented");
-    return;
-  }
+//  Map::Map(const std::string &master_file_name) {
+//    puts("Not implemented");
+//    return;
+//  }
 
-  Map::Map() {
+  Map::Map(FrameConfig &frame_config) : frame_config_(frame_config) {
     map_data::MapData *p_map_data = &map_data_list[ACTIVE];
     map_data_list[MapIndex::ACTIVE] = map_data::MapData("tile.png");
     map_data_list[MapIndex::RIGHT_CONNECTION] = map_data::MapData("tile.png", 1);
@@ -231,20 +233,22 @@ namespace map {
 
   int Map::GetY() const { return y; }
 
-  void Map::RenderToScreen(FrameConfig frame_config, bool recalculate) const {
+  void Map::RenderToScreen(bool recalculate) const {
     if (active == nullptr) {
       return;
     }
 
-    int xpos = this->x * frame_config.tile_dimentions;
-    int ypos = this->y * frame_config.tile_dimentions;
-    auto screen_w = frame_config.width;
-    auto screen_h = frame_config.height;
+    int xpos = this->x * frame_config_.GetTileDimentions();
+    int ypos = this->y * frame_config_.GetTileDimentions();
+    auto screen_w = frame_config_.GetWidth();
+    auto screen_h = frame_config_.GetHeight();
+    auto screen_start_x = frame_config_.GetOffsetX();
+    auto screen_start_y = frame_config_.GetOffsetY();
 
     SDL_Rect src{xpos, ypos, screen_w, screen_h};
-    SDL_Rect dest{0, 0, screen_w, screen_h};
+    SDL_Rect dest{screen_start_x, screen_start_y, screen_w, screen_h};
 
-    auto tile_dim = static_cast<float>(frame_config.tile_dimentions);
+    auto tile_dim = static_cast<float>(frame_config_.GetTileDimentions());
 
     auto offset_x = 0;
     if (x > 0) {
@@ -253,7 +257,8 @@ namespace map {
       src.w = static_cast<int>(this->x * tile_dim);
       src.h = screen_h - ypos;
 
-      dest.x = screen_w - xpos;
+      dest.x = screen_start_x + (screen_w - xpos);
+      dest.y = screen_start_y;
       dest.w = src.w;
       dest.h = src.h;
 
@@ -280,11 +285,11 @@ namespace map {
     if (y > 0) {
         src.x = offset_x;
         src.y = 0;
-        src.w = (frame_config.cols * tile_dim) - offset_x;
+        src.w = (frame_config_.GetCols() * tile_dim) - offset_x;
         src.h = static_cast<int>(ypos);
 
-        dest.x = 0;
-        dest.y = static_cast<int>(static_cast<float>(screen_h) - (this->y * tile_dim));
+        dest.x = screen_start_x;
+        dest.y = screen_start_y + static_cast<int>(static_cast<float>(screen_h) - (this->y * tile_dim));
         dest.h = src.h;
         dest.w = src.w;
 
@@ -312,8 +317,8 @@ namespace map {
     src.w = screen_w;
     src.h = screen_h;
 
-    dest.x = 0;
-    dest.y = 0;
+    dest.x = screen_start_x;
+    dest.y = screen_start_y;
     dest.w = screen_w - offset_x;
     dest.h = screen_h - offset_y;
 
@@ -333,8 +338,8 @@ namespace map {
       src.h = offset_y;
 
       dest = src;
-      dest.x = screen_w - offset_x;
-      dest.y = screen_h - offset_y;
+      dest.x = screen_start_x + (screen_w - offset_x);
+      dest.y = screen_start_y + (screen_h - offset_y);
       SDL_RenderCopy(
           sdl::renderer,
           border_map_.map_texture.mTexture,
@@ -347,31 +352,32 @@ namespace map {
 // TODO: Only supports one block movements for now
 
   int Map::GetTileFromMouse(int mx, int my) const {
-    mx = (mx - config::SCREEN_OFFSET_X) / config::TILE_DIM;
-    my = (my - config::SCREEN_OFFSET_Y) / config::TILE_DIM;
-    my += y;
-    mx += x;
-
-    if (mx > (int) total_width_ || my > (int) total_height_) {
-      printf("Invalid Mouse X:%d, Y:%d\n", mx, my);
-      return 0;
-    }
-
-    printf("TILE GET X:%d, Y:%d\n", mx, my);
-    return active->GetTile(mx, my);
+    return 0;
+//    mx = (mx - config::SCREEN_OFFSET_X) / config::TILE_DIM;
+//    my = (my - config::SCREEN_OFFSET_Y) / config::TILE_DIM;
+//    my += y;
+//    mx += x;
+//
+//    if (mx > (int) total_width_ || my > (int) total_height_) {
+//      printf("Invalid Mouse X:%d, Y:%d\n", mx, my);
+//      return 0;
+//    }
+//
+//    printf("TILE GET X:%d, Y:%d\n", mx, my);
+//    return active->GetTile(mx, my);
   }
 
   void Map::SetTile(int mx, int my, int tile) const {
-    mx = (mx - config::SCREEN_OFFSET_X) / config::TILE_DIM;
-    my = (my - config::SCREEN_OFFSET_Y) / config::TILE_DIM;
-    my += y;
-    mx += x;
-
-    if (mx > (int) total_width_ || my > (int) total_height_) {
-      printf("Invalid Mouse X:%d, Y:%d\n", mx, my);
-    }
-
-    active->SetTile(mx, my, tile);
+//    mx = (mx - config::SCREEN_OFFSET_X) / config::TILE_DIM;
+//    my = (my - config::SCREEN_OFFSET_Y) / config::TILE_DIM;
+//    my += y;
+//    mx += x;
+//
+//    if (mx > (int) total_width_ || my > (int) total_height_) {
+//      printf("Invalid Mouse X:%d, Y:%d\n", mx, my);
+//    }
+//
+//    active->SetTile(mx, my, tile);
   }
 
   void Map::SaveMap(size_t index) {

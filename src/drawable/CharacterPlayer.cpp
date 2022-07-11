@@ -1,7 +1,6 @@
 #include "CharacterPlayer.h"
 #include "../Renderer.h"
 
-
 namespace player {
   bool is_visible = false;
   bool draw_bounds = true;
@@ -10,8 +9,8 @@ namespace player {
 void CharacterPlayer::ResetBoundingBox() {
   auto config = frame_config_;
 
-  x_min = (config.cols / 2) - (mov_boundary_x / 2);
-  y_min = (config.rows / 2) - (mov_boundary_y / 2);
+  x_min = (config.GetCols() / 2) - (mov_boundary_x / 2);
+  y_min = (config.GetRows() / 2) - (mov_boundary_y / 2);
 
   x_max = x_min + mov_boundary_x;
   y_max = y_min + mov_boundary_y;
@@ -25,7 +24,7 @@ void CharacterPlayer::ResetBoundingBox() {
 
 CharacterPlayer::~CharacterPlayer() = default;
 
-CharacterPlayer::CharacterPlayer(FrameConfig frame_config, map::Map *map) :
+CharacterPlayer::CharacterPlayer(FrameConfig &frame_config, map::Map *map) :
     map_(map),
     frame_config_(frame_config) {
 
@@ -115,8 +114,8 @@ void CharacterPlayer::Tick() {
   auto canMoveUp = potential_y > 0;
   auto canMoveDown = potential_y > 0 || potential_y != MAX_POTENTIAL_Y;
 
-  auto cols = frame_config_.cols;
-  auto rows = frame_config_.rows;
+  auto cols = frame_config_.GetCols();
+  auto rows = frame_config_.GetRows();
 
   auto x_pos = static_cast<int>(movement.x);
   auto y_pos = static_cast<int>(movement.y);
@@ -131,8 +130,8 @@ void CharacterPlayer::Tick() {
     if (potential_x < 0) {
       return;
     }
-  } else if (x_pos >= x_max && (map_->x == static_cast<float>(this->map_->x_max_ - this->frame_config_.cols))) {
-    x_pos_max = frame_config_.cols - 1;
+  } else if (x_pos >= x_max && (map_->x == static_cast<float>(this->map_->x_max_ - this->frame_config_.GetCols()))) {
+    x_pos_max = frame_config_.GetCols() - 1;
     if (potential_x >= MAX_POTENTIAL_X) {
       return;
     }
@@ -144,8 +143,8 @@ void CharacterPlayer::Tick() {
     if (potential_y >= MAX_POTENTIAL_X) {
       return;
     }
-  } else if (y_pos >= y_max && (map_->y == static_cast<float>(this->map_->y_max_ - this->frame_config_.rows))) {
-    y_pos_max = frame_config_.rows - 1;
+  } else if (y_pos >= y_max && (map_->y == static_cast<float>(this->map_->y_max_ - this->frame_config_.GetRows()))) {
+    y_pos_max = frame_config_.GetRows() - 1;
     if (potential_y >= MAX_POTENTIAL_X) {
       return;
     }
@@ -194,13 +193,13 @@ void CharacterPlayer::Tick() {
 
 void CharacterPlayer::Render() {
   // Render player
-  const auto TILE_DIM = static_cast<float>(this->frame_config_.tile_dimentions);
-  const float PLAYER_X = static_cast<float>(this->frame_config_.offset_x) + (movement.x * TILE_DIM);
-  const float PLAYER_Y = static_cast<float>(this->frame_config_.offset_y) + (movement.y * TILE_DIM);
-  const float OFFSET_Y = 20.0F;
+  auto offset_x = frame_config_.GetOffsetX();
+  auto offset_y = frame_config_.GetOffsetY();
 
-  //printf("rx:%f, ry:%f\n", rx, ry);
-  //pTexture->Render(animation.current_frame, &pRenderer, rx, ry);
+  const auto TILE_DIM = static_cast<float>(this->frame_config_.GetTileDimentions());
+  const float PLAYER_X = static_cast<float>(offset_x) + (movement.x * TILE_DIM);
+  const float PLAYER_Y = static_cast<float>(offset_y) + (movement.y * TILE_DIM);
+  const float OFFSET_Y = 20.0F;
 
   Texture::Render(
       *sdl::renderer,
@@ -213,22 +212,22 @@ void CharacterPlayer::Render() {
   // Player box
   if (player::draw_bounds) {
     auto player_box = SDL_Rect{
-        x_pos_min * frame_config_.tile_dimentions,
-        y_pos_min * frame_config_.tile_dimentions,
-        ((x_pos_max - x_pos_min) * frame_config_.tile_dimentions) + frame_config_.tile_dimentions,
-        ((y_pos_max - y_pos_min) * frame_config_.tile_dimentions) + frame_config_.tile_dimentions
+        (x_pos_min * frame_config_.GetTileDimentions()) + offset_x,
+        (y_pos_min * frame_config_.GetTileDimentions()) + offset_y,
+        ((x_pos_max - x_pos_min) * frame_config_.GetTileDimentions()) + frame_config_.GetTileDimentions(),
+        ((y_pos_max - y_pos_min) * frame_config_.GetTileDimentions()) + frame_config_.GetTileDimentions()
     };
     auto player_character_box = SDL_Rect{
         static_cast<int>(PLAYER_X),
         static_cast<int>(PLAYER_Y),
-        frame_config_.tile_dimentions,
-        frame_config_.tile_dimentions,
+        frame_config_.GetTileDimentions(),
+        frame_config_.GetTileDimentions(),
     };
     auto map_box = SDL_Rect{
-        frame_config_.offset_x,
-        frame_config_.offset_y,
-        frame_config_.width,
-        frame_config_.height
+        offset_x,
+        offset_y,
+        frame_config_.GetWidth(),
+        frame_config_.GetHeight()
     };
 
     SDL_SetRenderDrawColor(sdl::renderer, 0xFF, 0x00, 0x00, 0xFF);

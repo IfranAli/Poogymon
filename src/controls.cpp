@@ -8,7 +8,7 @@ namespace input {
   void InitInputMaps(
       map::Map *p_map,
       CharacterPlayer *p_character_player
-      ) {
+  ) {
     menu::init_input_maps();
     editor::Init();
     player::Init(p_map, p_character_player);

@@ -12,13 +12,13 @@
 class Game {
  public:
 
-  Game();
+  Game(FrameConfig &frame_config);
   virtual ~Game();
 
   void Start();
 
  private:
-  FrameConfig frame_config_;
+  FrameConfig &frame_config_;
   map::Map map_;
   input::InputContext input_context_;
   CharacterPlayer player_;

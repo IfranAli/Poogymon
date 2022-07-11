@@ -9,8 +9,6 @@
 #include <utility>
 
 namespace map_data {
-  using namespace config;
-
   MapData::MapData() {
     connections = {nullptr, nullptr, nullptr, nullptr};
     p_map_data = nullptr;
@@ -80,7 +78,7 @@ namespace map_data {
 
   void MapData::DrawMap(int x, int y) {
     FrameConfig frame_config;
-    auto dim = frame_config.tile_dimentions;
+    auto dim = frame_config.GetTileDimentions();
 
     SDL_Rect grass_tile{0, 0, dim, dim};
     SDL_Rect src_tile{1, 0, dim, dim};
@@ -90,8 +88,8 @@ namespace map_data {
     // Set render target to texture
     SDL_SetRenderTarget(sdl::renderer, map_texture.mTexture);
 
-    for (int i = 0; i < frame_config.rows; ++i) {
-      for (int j = 0; j < frame_config.cols; ++j) {
+    for (int i = 0; i < frame_config.GetRows(); ++i) {
+      for (int j = 0; j < frame_config.GetCols(); ++j) {
         auto x_dim = dim * j;
         auto y_dim = dim * i;
         auto tile = GetTile(j, i);
@@ -137,14 +135,12 @@ namespace map_data {
     for (unsigned i = 0; i < array_size; ++i) {
       unsigned int tile = 0;
       ifs >> tile;
-//      std::cout << tile << ' ';
-
-//    ifs >> p_map_data[i];
       p_map_data[i] = tile;
     }
 
     ifs.close();
 
+    const auto TILE_DIM = 32;
     size_t width = TILE_DIM * map_width;
     size_t height = TILE_DIM * map_height;
 
@@ -179,8 +175,8 @@ namespace map_data {
 
     FrameConfig frame_config;
 
-    map_width = frame_config.cols;
-    map_height = frame_config.rows;
+    map_width = frame_config.GetCols();
+    map_height = frame_config.GetRows();
     size_t array_size = map_width * map_height;
     p_map_data = new unsigned int[array_size];
 
@@ -194,8 +190,8 @@ namespace map_data {
       }
     }
 
-    size_t width = frame_config.tile_dimentions * map_width;
-    size_t height = frame_config.tile_dimentions * map_height;
+    size_t width = frame_config.GetTileDimentions() * map_width;
+    size_t height = frame_config.GetTileDimentions() * map_height;
 
     Texture::MakeEmpty(map_texture, *sdl::renderer, width, height);
 
@@ -329,18 +325,18 @@ namespace map_data {
   }
 
   void MapData::RenderTile(int col, int row) {
-    int x = col * TILE_DIM;
-    int y = row * TILE_DIM;
+    int tile_x = col * TILE_DIM;
+    int tile_y = row * TILE_DIM;
 
     Texture::SetAsRenderTarget(map_texture, *sdl::renderer);
 
     //int tile = GetTile(col, row);
     //printf("PLACING TILE %d\n", tile);
-    //map_tileset.Render(0, NULL, x, y); // Grass.
-    //map_tileset.Render(GetTile(col, row), NULL, x, y);
+    //map_tileset.Render(0, NULL, tile_x, tile_y); // Grass.
+    //map_tileset.Render(GetTile(col, row), NULL, tile_x, tile_y);
 
-    Texture::Render(*sdl::renderer, map_tileset, 0, x, y);
-    Texture::Render(*sdl::renderer, map_tileset, GetTile(col, row), x, y);
+    Texture::Render(*sdl::renderer, map_tileset, 0, tile_x, tile_y);
+    Texture::Render(*sdl::renderer, map_tileset, GetTile(col, row), tile_x, tile_y);
 
     SDL_SetRenderTarget(sdl::renderer, NULL);
   }

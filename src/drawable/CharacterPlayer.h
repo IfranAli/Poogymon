@@ -8,7 +8,7 @@
 
 class CharacterPlayer final : public Character {
  public:
-  CharacterPlayer(FrameConfig frame_config, map::Map *map);
+  CharacterPlayer(FrameConfig &frame_config, map::Map *map);
   ~CharacterPlayer();
 
   void Tick() override;
@@ -24,7 +24,7 @@ class CharacterPlayer final : public Character {
   void ResetBoundingBox();
   const char *texture_path = "Resource/red.png";
   Texture::Tileset texture;
-  FrameConfig frame_config_;
+  FrameConfig &frame_config_;
 
   int x_max{};
   int y_max{};

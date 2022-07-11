@@ -43,6 +43,8 @@ namespace map_data {
     Texture::Texture map_texture;
     Texture::Tileset map_tileset;
    private:
+
+    const int TILE_DIM = 32;
     void FreeMemory();
   };
 }

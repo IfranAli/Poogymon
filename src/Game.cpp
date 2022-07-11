@@ -20,9 +20,9 @@ namespace {
   static const std::string MASTER_FILE_NAME = "01master.map";
 }
 
-Game::Game() :
-//    map_(MASTER_FILE_NAME),
-    map_(),
+Game::Game(FrameConfig &frame_config) :
+    frame_config_(frame_config),
+    map_(frame_config_),
     player_(frame_config_, &map_) {
 
   map::active_map = &map_;
@@ -41,8 +41,6 @@ void Game::Start() {
   sdl::deltatime = 0;
   dialog::add_item(sdl::deltatime, 0, 200);
 
-//  map::active_map->RenderToScreen(frame_config_);
-
   input::SetInputHandler(player::ih_player);
 
   GameLoop();
@@ -60,7 +58,10 @@ void Game::GameLoop() {
       switch (event.type) {
         case SDL_WINDOWEVENT:
           if (event.window.event == SDL_WINDOWEVENT_RESIZED) {
-            config::RecalculateWindowVariables(event.window.data1, event.window.data2);
+            frame_config_.RecalculateWindowVariables(DimentionType{
+                .width= event.window.data1,
+                .height = event.window.data2
+            });
           }
           break;
         case SDL_QUIT:quit = true;
@@ -78,11 +79,7 @@ void Game::GameLoop() {
 
     map_.Tick();
 
-//    if (player.draw_map) {
-    map::active_map->RenderToScreen(frame_config_, true);
-//    } else {
-//      map_::active_map->RenderToScreen(frame_config, false);
-//    }
+    map::active_map->RenderToScreen(true);
 
     if (player::is_visible) {
       player_.Tick();

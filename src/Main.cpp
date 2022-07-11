@@ -20,24 +20,28 @@ namespace sdl {
   SDL_Window *window{nullptr};
   SDL_Renderer *renderer{nullptr};
   float deltatime = 0;
+  FrameConfig *g_frame_config{nullptr};
 
 /* load sdl resources */
-  bool SdlLoad(FrameConfig frame_config) {
+  bool SdlLoad(FrameConfig &frame_config) {
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
       printf("SDL initialisation failure: %s\n", SDL_GetError());
       return false;
     }
+//    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Hello world", "test description", sdl::window);
 
-//  SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Hello world", "test description", sdl::window);
-
-//    config::RecalculateWindowVariables(::config::SCREEN_WIDTH, ::config::SCREEN_HEIGHT);
     /* Init window */
     window = SDL_CreateWindow("Poogymon",
                               SDL_WINDOWPOS_UNDEFINED,
                               SDL_WINDOWPOS_UNDEFINED,
-                              frame_config.width ,
-                              frame_config.height,
+                              frame_config.GetWidth(),
+                              frame_config.GetHeight(),
                               SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
+
+    frame_config.RecalculateWindowVariables(DimentionType{
+        .width =frame_config.GetWidth(),
+        .height = frame_config.GetHeight(),
+    });
 
     if (window == nullptr) {
       printf("SDL failed window creation: %s\n", SDL_GetError());
@@ -77,18 +81,20 @@ namespace sdl {
 
 } /* sdl */
 
-void Start() {
-  auto game = Game();
+void Start(FrameConfig &frame_config) {
+  auto game = Game(frame_config);
   game.Start();
 }
 
 int main() {
   FrameConfig frame_config;
+  sdl::g_frame_config = &frame_config;
+
   if (!sdl::SdlLoad(frame_config)) {
     return 1;
   }
 
-  Start();
+  Start(frame_config);
   sdl::Cleanup();
   return 0;
 }

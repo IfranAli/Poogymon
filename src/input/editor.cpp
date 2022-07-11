@@ -28,21 +28,21 @@ namespace editor {
   bool show_tileset = false;
 
   void GetTile() {
-    auto x = input::mouse_x;
-    auto y = input::mouse_y;
-    auto result = 0;
-
-    if (editor::show_tileset && (x < config::SCREEN_OFFSET_X)) {
-      auto &tile_set = map::active_map->active->map_tileset;
-      result = tile_set.GetTile(x, y);
-    } else {
-      result = map::active_map->GetTileFromMouse(x, y);
-    }
-    std::printf("got tile %d\n", result);
-
-    if (result >= 0) {
-      selected_tile = result;
-    }
+//    auto x = input::mouse_x;
+//    auto y = input::mouse_y;
+//    auto result = 0;
+//
+//    if (editor::show_tileset && (x < config::SCREEN_OFFSET_X)) {
+//      auto &tile_set = map::active_map->active->map_tileset;
+//      result = tile_set.GetTile(x, y);
+//    } else {
+//      result = map::active_map->GetTileFromMouse(x, y);
+//    }
+//    std::printf("got tile %d\n", result);
+//
+//    if (result >= 0) {
+//      selected_tile = result;
+//    }
   }
 
   void PlaceTile() {
@@ -51,41 +51,36 @@ namespace editor {
 
   void DrawTileset() {
     if (editor::show_tileset) {
+      FrameConfig frame_config;
       auto &texture = map::active_map->active->map_tileset.texture;
-      // TODO render guard.
-      SDL_Rect clip;
-      clip.x = 0;
-      clip.y = 0;
-      clip.w = texture.mWidth;
-      clip.h = config::SCREEN_HEIGHT;
 
-      Texture::Render(
-          texture,
-          *sdl::renderer,
-          0,
-          0,
-          &clip);
+      SDL_Rect src;
+      src.x = src.y = 0;
+      src.w = texture.mWidth;
+      src.h = frame_config.GetHeight();
 
+      SDL_Rect dest = src;
+
+      SDL_RenderCopy(sdl::renderer, texture.mTexture, NULL, &dest);
     }
   }
 
   void OnEnable() {
     editor::show_tileset = true;
     if (editor::show_tileset) {
-      auto texture_width = map::active_map->active->map_tileset.texture.mWidth;
+      auto tileset_width = map::active_map->active->map_tileset.texture.mWidth;
 
-//      ::config::RecalculateWindowVariables(
-//          texture_width + ::config::SCREEN_WIDTH,
-//          ::config::SCREEN_HEIGHT,
-//          texture_width
-//      );
+      sdl::g_frame_config->RecalculateWindowVariables(DimentionType{
+          .width = sdl::g_frame_config->GetWidth() + tileset_width,
+          .height = sdl::g_frame_config->GetHeight(),
+      });
     }
   }
 
   void OnDisable() {
     if (editor::show_tileset) {
       editor::show_tileset = false;
-//      ::config::RecalculateWindowVariables();
+      sdl::g_frame_config->RecalculateWindowVariables();
     }
   }
 

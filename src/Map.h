@@ -43,8 +43,8 @@ namespace map {
   class Map final {
    public:
     Map &operator=(Map &&) noexcept;
-    explicit Map(const std::string &master_file_name);
-    Map();
+//    explicit Map(const std::string &master_file_name);
+    explicit Map(FrameConfig &frame_config);
     ~Map();
 
     void Tick() const;
@@ -71,7 +71,7 @@ namespace map {
     map_data::MapData &GetConnection(MapIndex);
     bool HasConnection(MapIndex);
     void AddMapData(map_data::MapData &map_data);
-    void RenderToScreen(FrameConfig, bool recalculate = false) const;
+    void RenderToScreen(bool recalculate = false) const;
 
     float x = 0.0;
     float y = 0.0;
@@ -91,8 +91,9 @@ namespace map {
     int y_min_ = 0;
 
    private:
+    FrameConfig &frame_config_;
     int border_tiles_[4] = {4, 5, 12, 13};
-    map_data::MapData border_map_ {map_data::MapData("tile.png", border_tiles_) };
+    map_data::MapData border_map_{map_data::MapData("tile.png", border_tiles_)};
     bool hide_rendering_border_ = true;
     bool show_tile_set_ = true;
   };
