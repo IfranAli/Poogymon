@@ -14,19 +14,17 @@ namespace map {
   extern bool moving;
   extern float target;
   extern float *axis;
-//extern float x;
-//extern float y;
   extern float speed;
 
   void MoveSmooth(int vx, int vy, bool move_camera);
   void MoveSmoothStep();
 
-  enum MapIndex : unsigned int {
-    ACTIVE,
-    LEFT_CONNECTION,
-    RIGHT_CONNECTION,
-    TOP_CONNECTION,
-    BOTTOM_CONNECTION,
+  enum MapIndex : int {
+    ACTIVE = 0,
+    LEFT_CONNECTION = 1,
+    RIGHT_CONNECTION = 2,
+    TOP_CONNECTION = 3,
+    BOTTOM_CONNECTION = 4,
   };
 
   enum Direction : int {
@@ -44,9 +42,9 @@ namespace map {
 
   class Map final {
    public:
-
     Map &operator=(Map &&) noexcept;
     explicit Map(const std::string &master_file_name);
+    Map();
     ~Map();
 
     void Tick() const;
@@ -69,7 +67,7 @@ namespace map {
     [[nodiscard]] std::vector<std::string> GetMapConnections() const;
 
     map_data::MapData *active{nullptr};
-    map_data::MapData map_data_list[MapIndex::BOTTOM_CONNECTION];
+    map_data::MapData map_data_list[5];
     map_data::MapData &GetConnection(MapIndex);
     bool HasConnection(MapIndex);
     void AddMapData(map_data::MapData &map_data);
@@ -93,6 +91,8 @@ namespace map {
     int y_min_ = 0;
 
    private:
+    int border_tiles_[4] = {4, 5, 12, 13};
+    map_data::MapData border_map_ {map_data::MapData("tile.png", border_tiles_) };
     bool hide_rendering_border_ = true;
     bool show_tile_set_ = true;
   };

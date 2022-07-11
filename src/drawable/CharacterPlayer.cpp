@@ -97,23 +97,26 @@ void CharacterPlayer::Tick() {
   int potential_x = map::active_map->GetX() + movement.x + mVelocityX;
   int potential_y = map::active_map->GetY() + movement.y + mVelocityY;
 
+  const int MAX_POTENTIAL_X = map_->x_max_;
+  const int MAX_POTENTIAL_Y = map_->y_max_;
+
+  if (potential_x < 0 || potential_x > MAX_POTENTIAL_X) {
+    return;
+  }
+
+  if (potential_y < 0 || potential_y >= MAX_POTENTIAL_Y) {
+    return;
+  }
+
   printf("X: %direction, Y: %direction\n", potential_x, potential_y);
 
-  auto canMoveRight = potential_x > 0 || potential_x != 20;
+  auto canMoveRight = potential_x > 0 || potential_x != MAX_POTENTIAL_X;
   auto canMoveLeft = potential_x > 0;
   auto canMoveUp = potential_y > 0;
-  auto canMoveDown = potential_y > 0 || potential_y != 20;
+  auto canMoveDown = potential_y > 0 || potential_y != MAX_POTENTIAL_Y;
 
-  if (potential_x < 0 || potential_x > 20) {
-    return;
-  }
-
-  if (potential_y < 0 || potential_y > 20) {
-    return;
-  }
-
-  auto cols = 15;
-  auto rows = 10;
+  auto cols = frame_config_.cols;
+  auto rows = frame_config_.rows;
 
   auto x_pos = static_cast<int>(movement.x);
   auto y_pos = static_cast<int>(movement.y);
@@ -130,7 +133,7 @@ void CharacterPlayer::Tick() {
     }
   } else if (x_pos >= x_max && (map_->x == static_cast<float>(this->map_->x_max_ - this->frame_config_.cols))) {
     x_pos_max = frame_config_.cols - 1;
-    if (potential_x >= 20) {
+    if (potential_x >= MAX_POTENTIAL_X) {
       return;
     }
   } else {
@@ -138,12 +141,12 @@ void CharacterPlayer::Tick() {
 
   if (y_pos <= y_min && (map_->y == 0.0F)) {
     y_pos_min = 0;
-    if (potential_y >= 20) {
+    if (potential_y >= MAX_POTENTIAL_X) {
       return;
     }
   } else if (y_pos >= y_max && (map_->y == static_cast<float>(this->map_->y_max_ - this->frame_config_.rows))) {
     y_pos_max = frame_config_.rows - 1;
-    if (potential_y >= 20) {
+    if (potential_y >= MAX_POTENTIAL_X) {
       return;
     }
   } else {

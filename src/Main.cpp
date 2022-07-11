@@ -35,10 +35,8 @@ namespace sdl {
     window = SDL_CreateWindow("Poogymon",
                               SDL_WINDOWPOS_UNDEFINED,
                               SDL_WINDOWPOS_UNDEFINED,
-//                              frame_config.width ,
-//                              frame_config.height,
-                              config::WINDOW_WIDTH,
-                              config::WINDOW_HEIGHT,
+                              frame_config.width ,
+                              frame_config.height,
                               SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
 
     if (window == nullptr) {

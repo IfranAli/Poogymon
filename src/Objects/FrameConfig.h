@@ -6,7 +6,7 @@
 #define GAME_SRC_OBJECTS_FRAMECONFIG_H_
 
 namespace internal {
-  constexpr int TILE_PER_COLUMN = 15;
+  constexpr int TILE_PER_COLUMN = 16;
   constexpr int TILE_PER_ROW = 10;
   constexpr int TILE_DIMENTIONS = 32;
 }

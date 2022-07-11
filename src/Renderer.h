@@ -11,8 +11,6 @@ namespace config {
 
 // Game rendering params.
 constexpr int TILE_DIM = 32;
-//constexpr int TILE_PER_COL = 15;
-//constexpr int TILE_PER_ROW = 15;
 constexpr int TILE_PER_COL = 20;
 constexpr int TILE_PER_ROW = 20;
 

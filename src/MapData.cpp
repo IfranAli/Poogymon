@@ -16,6 +16,25 @@ namespace map_data {
     p_map_data = nullptr;
   }
 
+  MapData::MapData(std::string texture_file_name, int tile) {
+    connections = {nullptr, nullptr, nullptr, nullptr};
+    p_map_data = nullptr;
+    int tiles[4] = {tile, tile, tile, tile};
+    MakeEmpty(texture_file_name, tiles);
+
+    PrintMap();
+    DrawMap(tile, tile);
+  }
+
+  MapData::MapData(std::string texture_file_name, int tiles[4]) {
+    connections = {nullptr, nullptr, nullptr, nullptr};
+    p_map_data = nullptr;
+    MakeEmpty(texture_file_name, tiles);
+
+    PrintMap();
+    DrawMap(0, 0);
+  }
+
   MapData::MapData(std::string filename, std::string filename_texture) {
     connections = {nullptr, nullptr, nullptr, nullptr};
     p_map_data = nullptr;
@@ -66,13 +85,13 @@ namespace map_data {
     SDL_Rect grass_tile{0, 0, dim, dim};
     SDL_Rect src_tile{1, 0, dim, dim};
     SDL_Rect dest_tile = src_tile;
-    auto tileset_info = Texture::getTilesetInfo(&map_tileset.texture,dim, dim);
+    auto tileset_info = Texture::getTilesetInfo(&map_tileset.texture, dim, dim);
 
     // Set render target to texture
     SDL_SetRenderTarget(sdl::renderer, map_texture.mTexture);
 
-    for (int i = 0; i < 20; ++i) {
-      for (int j = 0; j < 20; ++j) {
+    for (int i = 0; i < frame_config.rows; ++i) {
+      for (int j = 0; j < frame_config.cols; ++j) {
         auto x_dim = dim * j;
         auto y_dim = dim * i;
         auto tile = GetTile(j, i);
@@ -153,6 +172,37 @@ namespace map_data {
     if (!filename.empty() && !map_tileset.texture.filename.empty()) {
       LoadMap(filename, map_tileset.texture.filename);
     }
+  }
+
+  void MapData::MakeEmpty(std::string &texture_file_name, const int tiles[4]) {
+    FreeMemory();
+
+    FrameConfig frame_config;
+
+    map_width = frame_config.cols;
+    map_height = frame_config.rows;
+    size_t array_size = map_width * map_height;
+    p_map_data = new unsigned int[array_size];
+
+    auto tile = 0;
+
+    for(auto y = 0; y < map_height; ++y) {
+      tile = (y % 2) ? 0 : 2;
+
+      for (auto x = 0; x < map_width; ++x) {
+        p_map_data[(y * map_width) + x] = tiles[tile + (x % 2)];
+      }
+    }
+
+    size_t width = frame_config.tile_dimentions * map_width;
+    size_t height = frame_config.tile_dimentions * map_height;
+
+    Texture::MakeEmpty(map_texture, *sdl::renderer, width, height);
+
+    std::string file_path = "Resource/" + texture_file_name;
+    Texture::LoadFromFile(*sdl::renderer, map_tileset, file_path.c_str(), TILE_DIM, TILE_DIM);
+
+    printf("Created map data!");
   }
 
   void MapData::SaveMap(const std::string &filename) {

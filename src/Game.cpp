@@ -21,7 +21,8 @@ namespace {
 }
 
 Game::Game() :
-    map_(MASTER_FILE_NAME),
+//    map_(MASTER_FILE_NAME),
+    map_(),
     player_(frame_config_, &map_) {
 
   map::active_map = &map_;
