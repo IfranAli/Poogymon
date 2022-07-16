@@ -59,8 +59,7 @@ namespace map {
 
   map_data::MapData &Map::GetConnection(MapIndex type) {
     switch (type) {
-      case ACTIVE:
-        return map_data_list[ACTIVE];
+      case ACTIVE:return map_data_list[ACTIVE];
         break;
       case LEFT_CONNECTION:return *map_data_list[MapIndex::ACTIVE].connections.Left;
         break;
@@ -162,12 +161,18 @@ namespace map {
 //    return;
 //  }
 
+  namespace {
+    int tile_0[4]{0, 0, 0, 0};
+    int tile_1[4]{1, 1, 1, 1};
+    int tile_2[4]{2, 2, 2, 2};
+    int tile_3[4]{8, 8, 8, 8};
+  }
+
   Map::Map(FrameConfig &frame_config) : frame_config_(frame_config) {
-    map_data::MapData *p_map_data = &map_data_list[ACTIVE];
-    map_data_list[MapIndex::ACTIVE] = map_data::MapData("tile.png");
-    map_data_list[MapIndex::RIGHT_CONNECTION] = map_data::MapData("tile.png", 1);
-    map_data_list[MapIndex::LEFT_CONNECTION] = map_data::MapData("tile.png", 2);
-    map_data_list[MapIndex::BOTTOM_CONNECTION] = map_data::MapData("tile.png", 8);
+    map_data_list[MapIndex::ACTIVE] = map_data::MapData("tile.png", tile_0);
+    map_data_list[MapIndex::RIGHT_CONNECTION] = map_data::MapData("tile.png", tile_1);
+    map_data_list[MapIndex::LEFT_CONNECTION] = map_data::MapData("tile.png", tile_2);
+    map_data_list[MapIndex::BOTTOM_CONNECTION] = map_data::MapData("tile.png", tile_3);
 
     map_data_list[ACTIVE].connections.Right = &map_data_list[RIGHT_CONNECTION];
     map_data_list[ACTIVE].connections.Left = &map_data_list[LEFT_CONNECTION];
@@ -186,8 +191,7 @@ namespace map {
   }
 
   bool Map::HasConnection(MapIndex type) {
-    auto &connection = map_data_list[type];
-    return (connection.map_width_ != 0) && (connection.map_height_ != 0);
+    return map_data_list[type].IsValidMap();
   }
 
   void Map::Tick() const {
@@ -202,28 +206,28 @@ namespace map {
 
   void Map::AddMapData(map_data::MapData &mapdata) {
     active = &mapdata;
-    this->total_width_ += mapdata.map_width_;
-    this->total_height_ += mapdata.map_height_;
+    this->total_width_ += mapdata.GetMapWidth();
+    this->total_height_ += mapdata.GetMapHeight();
     this->x_max_ += total_width_;
     this->y_max_ += total_height_;
 
     if (active->connections.Right != nullptr) {
-      auto width = active->connections.Right->map_width_;
+      auto width = active->connections.Right->GetMapWidth();
       this->total_width_ += width;
       this->x_max_ += width;
     }
     if (active->connections.Left != nullptr) {
-      auto width = active->connections.Left->map_width_;
+      auto width = active->connections.Left->GetMapWidth();
       this->total_width_ += width;
       this->x_min_ -= width;
     }
     if (active->connections.Up != nullptr) {
-      auto width = active->connections.Up->map_width_;
+      auto width = active->connections.Up->GetMapWidth();
       this->total_height_ += width;
       this->y_min_ -= width;
     }
     if (active->connections.Down != nullptr) {
-      auto height = active->connections.Down->map_height_;
+      auto height = active->connections.Down->GetMapHeight();
       this->total_height_ += height;
       this->y_max_ += height;
     }
@@ -286,17 +290,17 @@ namespace map {
 
     auto offset_y = 0;
     if (y > 0) {
-        src.x = offset_x;
-        src.y = 0;
-        src.w = (frame_config_.GetCols() * tile_dim) - offset_x;
-        src.h = static_cast<int>(ypos);
+      src.x = offset_x;
+      src.y = 0;
+      src.w = (frame_config_.GetCols() * tile_dim) - offset_x;
+      src.h = static_cast<int>(ypos);
 
-        dest.x = screen_start_x;
-        dest.y = screen_start_y + static_cast<int>(static_cast<float>(screen_h) - (this->y * tile_dim));
-        dest.h = src.h;
-        dest.w = src.w;
+      dest.x = screen_start_x;
+      dest.y = screen_start_y + static_cast<int>(static_cast<float>(screen_h) - (this->y * tile_dim));
+      dest.h = src.h;
+      dest.w = src.w;
 
-        offset_y = ypos;
+      offset_y = ypos;
 
       if (active_map->HasConnection(BOTTOM_CONNECTION)) {
         SDL_RenderCopy(
@@ -405,23 +409,5 @@ namespace map {
     }
 
     return map_names;
-  }
-  int Map::GetTotalWidth() const {
-    return total_width_;
-  }
-  int Map::GetTotalHeight() const {
-    return total_height_;
-  }
-  int Map::GetXMax() const {
-    return x_max_;
-  }
-  int Map::GetXMin() const {
-    return x_min_;
-  }
-  int Map::GetYMax() const {
-    return y_max_;
-  }
-  int Map::GetYMin() const {
-    return y_min_;
   }
 } /*namespace map_ */

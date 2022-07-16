@@ -13,15 +13,6 @@ namespace map_data {
     connections = {nullptr, nullptr, nullptr, nullptr};
   }
 
-  MapData::MapData(std::string texture_file_name, int tile) {
-    connections = {nullptr, nullptr, nullptr, nullptr};
-    int tiles[4] = {tile, tile, tile, tile};
-    MakeEmpty(texture_file_name, tiles);
-
-    PrintMap();
-    DrawMap();
-  }
-
   MapData::MapData(std::string texture_file_name, int tiles[4]) {
     connections = {nullptr, nullptr, nullptr, nullptr};
     MakeEmpty(texture_file_name, tiles);
@@ -46,6 +37,10 @@ namespace map_data {
 
   MapData &MapData::operator=(MapData &&t) noexcept {
     filename = std::exchange(t.filename, {});
+
+    for (auto i{0}; i < t.map_width_ * t.map_height_; ++i) {
+      map_data_[i] = t.map_data_[i];
+    }
     map_width_ = std::exchange(t.map_width_, 0);
     map_height_ = std::exchange(t.map_height_, 0);
     std::swap(connections, t.connections);
@@ -315,5 +310,13 @@ namespace map_data {
 
     SDL_SetRenderTarget(sdl::renderer, NULL);
   }
-
+  bool MapData::IsValidMap() {
+    return (map_width_ != 0) && (map_height_ != 0);
+  }
+  int MapData::GetMapWidth() const {
+    return map_width_;
+  }
+  int MapData::GetMapHeight() const {
+    return map_height_;
+  }
 }

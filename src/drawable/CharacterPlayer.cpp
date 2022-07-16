@@ -91,8 +91,6 @@ void CharacterPlayer::Tick() {
     movement.speed = base_movement_speed;
   }
 
-  map::active_map->transition_speed_ = movement.speed;
-
   int potential_x = map::active_map->GetX() + movement.x + mVelocityX;
   int potential_y = map::active_map->GetY() + movement.y + mVelocityY;
 
@@ -107,7 +105,7 @@ void CharacterPlayer::Tick() {
     return;
   }
 
-  printf("X: %direction, Y: %direction\n", potential_x, potential_y);
+  printf("X: %d, Y: %d\n", potential_x, potential_y);
 
   auto canMoveRight = potential_x > 0 || potential_x != MAX_POTENTIAL_X;
   auto canMoveLeft = potential_x > 0;

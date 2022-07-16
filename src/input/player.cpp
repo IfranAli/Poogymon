@@ -32,7 +32,6 @@ namespace player {
   void y_clear() { character_player->mVelocityY = 0; }
 
   void on_enable() {
-    map->transition_speed_ = character_player->movement.speed;
     is_visible = true;
     v_clear();
 
@@ -41,7 +40,6 @@ namespace player {
   }
 
   void on_disable() {
-    map->transition_speed_ = map::transition_speed_default;
     is_visible = false;
     v_clear();
 

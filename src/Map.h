@@ -75,13 +75,6 @@ namespace map {
 
     float x = 0.0;
     float y = 0.0;
-    float transition_speed_ = 10;
-    [[nodiscard]] int GetTotalWidth() const;
-    [[nodiscard]] int GetTotalHeight() const;
-    [[nodiscard]] int GetXMax() const;
-    [[nodiscard]] int GetXMin() const;
-    [[nodiscard]] int GetYMax() const;
-    [[nodiscard]] int GetYMin() const;
 
     int total_width_ = 0;
     int total_height_ = 0;
@@ -93,8 +86,7 @@ namespace map {
    private:
     FrameConfig &frame_config_;
     int border_tiles_[4] = {4, 5, 12, 13};
-    map_data::MapData border_map_{map_data::MapData("tile.png", border_tiles_)};
-    bool hide_rendering_border_ = true;
+    map_data::MapData border_map_ = map_data::MapData("tile.png", border_tiles_);
     bool show_tile_set_ = true;
   };
 

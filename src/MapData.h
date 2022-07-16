@@ -15,6 +15,16 @@ namespace map_data {
 
   class MapData {
    public:
+    MapData();
+    ~MapData();
+    MapData(MapData &map_data) noexcept;
+    MapData(MapData &&t) noexcept;
+
+    MapData(std::string filename, std::string filename_texture);
+    explicit MapData(std::string filename_texture, int tiles[4]);
+
+    MapData &operator=(MapData &&) noexcept;
+
     void DrawMap();
     bool LoadMap(const std::string &p_file_name, const std::string &p_file_name_texture);
     void SaveMap(const std::string &filename);
@@ -26,18 +36,11 @@ namespace map_data {
     int GetTile(int col, int row);
     void SetTile(int col, int row, int tile);
     void RenderTile(int col, int row);
+    bool IsValidMap();
 
-    MapData(MapData &map_data) noexcept;
-    MapData(MapData &&t) noexcept;
-    MapData(std::string filename, std::string filename_texture);
-    explicit MapData(std::string filename_texture, int tile = 0);
-    explicit MapData(std::string filename_texture, int tiles[4]);
-    MapData();
-    MapData &operator=(MapData &&) noexcept;
-    ~MapData();
+    [[nodiscard]] int GetMapWidth() const;
+    [[nodiscard]] int GetMapHeight() const;
 
-    int map_width_ = 0;
-    int map_height_ = 0;
     std::string filename;
     Connections connections;
     Texture::Texture map_texture;
@@ -45,6 +48,9 @@ namespace map_data {
    private:
 
     int map_data_[config::MAP_ARRAY_SIZE];
+    int map_height_ = 0;
+    int map_width_ = 0;
+
     void FreeMemory();
   };
 }
