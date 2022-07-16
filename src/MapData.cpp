@@ -11,49 +11,43 @@
 namespace map_data {
   MapData::MapData() {
     connections = {nullptr, nullptr, nullptr, nullptr};
-    p_map_data = nullptr;
   }
 
   MapData::MapData(std::string texture_file_name, int tile) {
     connections = {nullptr, nullptr, nullptr, nullptr};
-    p_map_data = nullptr;
     int tiles[4] = {tile, tile, tile, tile};
     MakeEmpty(texture_file_name, tiles);
 
     PrintMap();
-    DrawMap(tile, tile);
+    DrawMap();
   }
 
   MapData::MapData(std::string texture_file_name, int tiles[4]) {
     connections = {nullptr, nullptr, nullptr, nullptr};
-    p_map_data = nullptr;
     MakeEmpty(texture_file_name, tiles);
 
     PrintMap();
-    DrawMap(0, 0);
+    DrawMap();
   }
 
   MapData::MapData(std::string filename, std::string filename_texture) {
     connections = {nullptr, nullptr, nullptr, nullptr};
-    p_map_data = nullptr;
     LoadMap(filename, filename_texture);
   }
 
   MapData::MapData(MapData &t) noexcept {
-    p_map_data = std::exchange(t.p_map_data, nullptr);
     filename = std::exchange(t.filename, {});
-    map_width = std::exchange(t.map_width, 0);
-    map_height = std::exchange(t.map_height, 0);
+    map_width_ = std::exchange(t.map_width_, 0);
+    map_height_ = std::exchange(t.map_height_, 0);
     std::swap(connections, t.connections);
     std::swap(map_tileset, t.map_tileset);
     std::swap(map_texture, t.map_texture);
   }
 
   MapData &MapData::operator=(MapData &&t) noexcept {
-    p_map_data = std::exchange(t.p_map_data, nullptr);
     filename = std::exchange(t.filename, {});
-    map_width = std::exchange(t.map_width, 0);
-    map_height = std::exchange(t.map_height, 0);
+    map_width_ = std::exchange(t.map_width_, 0);
+    map_height_ = std::exchange(t.map_height_, 0);
     std::swap(connections, t.connections);
     std::swap(map_tileset, t.map_tileset);
     std::swap(map_texture, t.map_texture);
@@ -62,10 +56,9 @@ namespace map_data {
 
 // Move constructor
   MapData::MapData(MapData &&t) noexcept {
-    p_map_data = std::exchange(t.p_map_data, nullptr);
     filename = std::exchange(t.filename, {});
-    map_width = std::exchange(t.map_width, 0);
-    map_height = std::exchange(t.map_height, 0);
+    map_width_ = std::exchange(t.map_width_, 0);
+    map_height_ = std::exchange(t.map_height_, 0);
 //  connections = std::exchange(t.connections, {});
     std::swap(connections, t.connections);
   }
@@ -76,7 +69,7 @@ namespace map_data {
     std::printf("map_data Dtor - OK \n");
   }
 
-  void MapData::DrawMap(int x, int y) {
+  void MapData::DrawMap() {
     FrameConfig frame_config;
     auto dim = frame_config.GetTileDimension();
 
@@ -121,33 +114,35 @@ namespace map_data {
     filename = p_file_name;
 
     std::ifstream ifs(filename);
-    ifs >> map_width >> map_height;
+    ifs >> map_width_ >> map_height_;
 
-    size_t array_size = map_width * map_height;
+    size_t array_size = map_width_ * map_height_;
     if (array_size == 0) {
       puts("map dimensions must be non-zeo");
       return false;
     }
 
     printf("Creating Map: %s\n", filename.c_str());
-    p_map_data = new unsigned int[array_size];
 
     for (unsigned i = 0; i < array_size; ++i) {
       unsigned int tile = 0;
       ifs >> tile;
-      p_map_data[i] = tile;
+      map_data_[i] = tile;
     }
 
     ifs.close();
 
-    const auto TILE_DIM = 32;
-    size_t width = TILE_DIM * map_width;
-    size_t height = TILE_DIM * map_height;
+    unsigned int width = config::TILE_DIMENSIONS * map_width_;
+    unsigned int height = config::TILE_DIMENSIONS * map_height_;
 
     Texture::MakeEmpty(map_texture, *sdl::renderer, width, height);
 
     std::string file_path = "Resource/" + p_file_name_texture;
-    Texture::LoadFromFile(*sdl::renderer, map_tileset, file_path.c_str(), TILE_DIM, TILE_DIM);
+    Texture::LoadFromFile(*sdl::renderer,
+                          map_tileset,
+                          file_path.c_str(),
+                          config::TILE_DIMENSIONS,
+                          config::TILE_DIMENSIONS);
 
 //    SaveMap();
     PrintMap();
@@ -173,84 +168,72 @@ namespace map_data {
   void MapData::MakeEmpty(std::string &texture_file_name, const int tiles[4]) {
     FreeMemory();
 
-    FrameConfig frame_config;
-
-    map_width = frame_config.GetCols();
-    map_height = frame_config.GetRows();
-    size_t array_size = map_width * map_height;
-    p_map_data = new unsigned int[array_size];
+    map_width_ = config::TILE_PER_COLUMN;
+    map_height_ = config::TILE_PER_ROW;
 
     auto tile = 0;
 
-    for(auto y = 0; y < map_height; ++y) {
+    for (auto y = 0; y < map_height_; ++y) {
       tile = (y % 2) ? 0 : 2;
 
-      for (auto x = 0; x < map_width; ++x) {
-        p_map_data[(y * map_width) + x] = tiles[tile + (x % 2)];
+      for (auto x = 0; x < map_width_; ++x) {
+        map_data_[(y * map_width_) + x] = tiles[tile + (x % 2)];
       }
     }
 
-    size_t width = frame_config.GetTileDimension() * map_width;
-    size_t height = frame_config.GetTileDimension() * map_height;
+    size_t width = config::TILE_DIMENSIONS * map_width_;
+    size_t height = config::TILE_DIMENSIONS * map_height_;
 
     Texture::MakeEmpty(map_texture, *sdl::renderer, width, height);
 
     std::string file_path = "Resource/" + texture_file_name;
-    Texture::LoadFromFile(*sdl::renderer, map_tileset, file_path.c_str(), TILE_DIM, TILE_DIM);
+    Texture::LoadFromFile(*sdl::renderer,
+                          map_tileset,
+                          file_path.c_str(),
+                          config::TILE_DIMENSIONS,
+                          config::TILE_DIMENSIONS);
 
     printf("Created map data!");
   }
 
   void MapData::SaveMap(const std::string &filename) {
-    if (p_map_data == nullptr) {
-      printf("Matrix is NULL, can not save.\n");
-      return;
-    } else if (map_width == 0 || map_height == 0) {
+    if (map_width_ == 0 || map_height_ == 0) {
       printf("Can not save matrix of size 0\n");
       return;
-    } else {
-
-      auto array_size = map_width * map_height;
+    }
+//      auto array_size = map_width_ * map_height_;
 
 //      for (int i = 0; i < array_size; ++i) {
 //        unsigned int tile = p_map_data[i];
 //        std::cout << tile << ' ';
-//      }
 
-      this->filename = filename;
-      std::ofstream ofs(filename);
+    this->filename = filename;
+    std::ofstream ofs(filename);
 //
-      ofs << map_width << ' ' << map_height << ' ';
+    ofs << map_width_ << ' ' << map_height_ << ' ';
 
-      size_t map_array_size = map_width * map_height;
+    size_t map_array_size = map_width_ * map_height_;
 
-      for (size_t i = 0; i < map_array_size; ++i) {
-        unsigned int tile = p_map_data[i];
+    for (size_t i = 0; i < map_array_size; ++i) {
+//        unsigned int tile = map_data_[i];
 //        std::cout << tile << ' ';
 //        ofs << tile << ' ';
-      }
+    }
 
-      for (unsigned i = 0; i < map_array_size; ++i) {
-        unsigned int tile = p_map_data[i];
-        ofs << tile << ' ';
+    for (unsigned i = 0; i < map_array_size; ++i) {
+//        unsigned int tile = map_data_[i];
+//        ofs << tile << ' ';
 //        std::cout << tile << ' ';
 //        std::cout << tile << ' ';
-      }
+    }
 
 //      ofs.close();
-      printf("Saved Matrix: %s\n", filename.c_str());
-    }
+    printf("Saved Matrix: %s\n", filename.c_str());
   }
 
   void MapData::PrintMap() {
-    if (p_map_data == nullptr) {
-      std::printf("map data is nullptr, can not print.\n");
-      return;
-    }
-
-    for (int j = 0; j < map_height; ++j) {
-      for (int i = 0; i < map_width; ++i) {
-        //printf("%2d ", p_map_data[j * map_width + i]);
+    for (int j = 0; j < map_height_; ++j) {
+      for (int i = 0; i < map_width_; ++i) {
         printf("%2d ", GetTile(i, j));
       }
       printf("\n");
@@ -258,14 +241,6 @@ namespace map_data {
   }
 
   void MapData::FreeMemory() {
-    if (p_map_data != nullptr) {
-      // TODO: still crashes
-      delete[] p_map_data;
-      p_map_data = nullptr;
-      map_height = 0;
-      map_width = 0;
-      filename = "";
-    }
   }
 
   int MapData::GetTile(int col, int row) {
@@ -277,19 +252,19 @@ namespace map_data {
     if (col < 0) {
       if (map::active_map->HasConnection(map::LEFT_CONNECTION)) {
         auto &connection = map::active_map->GetConnection(map::LEFT_CONNECTION);
-        col = connection.map_width + col;
+        col = connection.map_width_ + col;
         return connection.GetTile(col, row);
       }
     }
 
-    if (row >= map_height) {
-      return ((connections.Up) ? connections.Up->GetTile(col, row % map_height) : -1);
+    if (row >= map_height_) {
+      return ((connections.Up) ? connections.Up->GetTile(col, row % map_height_) : -1);
     }
-    if (col >= map_width) {
-      return ((connections.Right) ? connections.Right->GetTile(col % map_width, row) : -1);
+    if (col >= map_width_) {
+      return ((connections.Right) ? connections.Right->GetTile(col % map_width_, row) : -1);
     }
 
-    return p_map_data[row * map_width + col];
+    return map_data_[row * map_width_ + col];
   }
 
   void MapData::SetTile(int col, int row, int t) {
@@ -301,32 +276,32 @@ namespace map_data {
     if (col < 0) {
       if (map::active_map->HasConnection(map::LEFT_CONNECTION)) {
         auto &connection = map::active_map->GetConnection(map::LEFT_CONNECTION);
-        col = connection.map_width + col;
+        col = connection.map_width_ + col;
         return connection.SetTile(col, row, t);
       }
     }
 
-    if (row >= map_height) {
+    if (row >= map_height_) {
       if (connections.Up) {
-        connections.Up->SetTile(col, row % map_height, t);
+        connections.Up->SetTile(col, row % map_height_, t);
       }
       return;
     }
-    if (col >= map_width) {
+    if (col >= map_width_) {
       if (connections.Right) {
-        connections.Right->SetTile(col % map_width, row, t);
+        connections.Right->SetTile(col % map_width_, row, t);
       }
       return;
     }
 
     printf("MAP STORED TILE: %d\n", t);
-    p_map_data[row * map_width + col] = t;
+    map_data_[row * map_width_ + col] = t;
     RenderTile(col, row);
   }
 
   void MapData::RenderTile(int col, int row) {
-    int tile_x = col * TILE_DIM;
-    int tile_y = row * TILE_DIM;
+    int tile_x = col * config::TILE_DIMENSIONS;
+    int tile_y = row * config::TILE_DIMENSIONS;
 
     Texture::SetAsRenderTarget(map_texture, *sdl::renderer);
 

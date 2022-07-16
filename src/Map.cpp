@@ -186,7 +186,8 @@ namespace map {
   }
 
   bool Map::HasConnection(MapIndex type) {
-    return (map_data_list[type].p_map_data != nullptr);
+    auto &connection = map_data_list[type];
+    return (connection.map_width_ != 0) && (connection.map_height_ != 0);
   }
 
   void Map::Tick() const {
@@ -201,28 +202,28 @@ namespace map {
 
   void Map::AddMapData(map_data::MapData &mapdata) {
     active = &mapdata;
-    this->total_width_ += mapdata.map_width;
-    this->total_height_ += mapdata.map_height;
+    this->total_width_ += mapdata.map_width_;
+    this->total_height_ += mapdata.map_height_;
     this->x_max_ += total_width_;
     this->y_max_ += total_height_;
 
     if (active->connections.Right != nullptr) {
-      auto width = active->connections.Right->map_width;
+      auto width = active->connections.Right->map_width_;
       this->total_width_ += width;
       this->x_max_ += width;
     }
     if (active->connections.Left != nullptr) {
-      auto width = active->connections.Left->map_width;
+      auto width = active->connections.Left->map_width_;
       this->total_width_ += width;
       this->x_min_ -= width;
     }
     if (active->connections.Up != nullptr) {
-      auto width = active->connections.Up->map_width;
+      auto width = active->connections.Up->map_width_;
       this->total_height_ += width;
       this->y_min_ -= width;
     }
     if (active->connections.Down != nullptr) {
-      auto height = active->connections.Down->map_height;
+      auto height = active->connections.Down->map_height_;
       this->total_height_ += height;
       this->y_max_ += height;
     }

@@ -1,6 +1,7 @@
 #pragma once
 #include "Texture.h"
 #include "Tileset.h"
+#include "Objects/FrameConfig.h"
 
 namespace map_data {
 
@@ -14,7 +15,7 @@ namespace map_data {
 
   class MapData {
    public:
-    void DrawMap(int x = 0, int y = 0);
+    void DrawMap();
     bool LoadMap(const std::string &p_file_name, const std::string &p_file_name_texture);
     void SaveMap(const std::string &filename);
     void SaveMap();
@@ -35,16 +36,15 @@ namespace map_data {
     MapData &operator=(MapData &&) noexcept;
     ~MapData();
 
-    int map_width{};
-    int map_height{};
+    int map_width_ = 0;
+    int map_height_ = 0;
     std::string filename;
-    unsigned int *p_map_data{nullptr};
     Connections connections;
     Texture::Texture map_texture;
     Texture::Tileset map_tileset;
    private:
 
-    const int TILE_DIM = 32;
+    int map_data_[config::MAP_ARRAY_SIZE];
     void FreeMemory();
   };
 }

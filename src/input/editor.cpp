@@ -47,6 +47,7 @@ namespace editor {
 
   void PlaceTile() {
     map::active_map->SetTile(::input::mouse_x, ::input::mouse_y, selected_tile);
+    // todo: implement new method to draw maps if they have pending changes.
     map::active_map->active->DrawMap();
   }
 

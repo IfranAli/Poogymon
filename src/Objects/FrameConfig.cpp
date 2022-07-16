@@ -2,7 +2,7 @@
 #include "../Renderer.h"
 
 int FrameConfig::GetTileDimension() const {
-  return tile_dimensions_;
+  return config::TILE_DIMENSIONS;
 }
 int FrameConfig::GetCols() const {
   return cols_;
@@ -34,8 +34,9 @@ void FrameConfig::RecalculateWindowVariables(DimensionType dim) {
   offset_x_ = dim.width - width_;
   offset_y_ = 0;
 
-  window_width = dim.width;
-  window_height = dim.height;
+  window_width_ = dim.width;
+  window_height_ = dim.height;
 
-  SDL_SetWindowSize(sdl::window, window_width, window_height);
+  SDL_SetWindowSize(sdl::window, window_width_, window_height_);
 }
+
