@@ -78,7 +78,7 @@ namespace map_data {
 
   void MapData::DrawMap(int x, int y) {
     FrameConfig frame_config;
-    auto dim = frame_config.GetTileDimentions();
+    auto dim = frame_config.GetTileDimension();
 
     SDL_Rect grass_tile{0, 0, dim, dim};
     SDL_Rect src_tile{1, 0, dim, dim};
@@ -190,8 +190,8 @@ namespace map_data {
       }
     }
 
-    size_t width = frame_config.GetTileDimentions() * map_width;
-    size_t height = frame_config.GetTileDimentions() * map_height;
+    size_t width = frame_config.GetTileDimension() * map_width;
+    size_t height = frame_config.GetTileDimension() * map_height;
 
     Texture::MakeEmpty(map_texture, *sdl::renderer, width, height);
 

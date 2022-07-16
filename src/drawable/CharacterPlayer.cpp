@@ -196,7 +196,7 @@ void CharacterPlayer::Render() {
   auto offset_x = frame_config_.GetOffsetX();
   auto offset_y = frame_config_.GetOffsetY();
 
-  const auto TILE_DIM = static_cast<float>(this->frame_config_.GetTileDimentions());
+  const auto TILE_DIM = static_cast<float>(this->frame_config_.GetTileDimension());
   const float PLAYER_X = static_cast<float>(offset_x) + (movement.x * TILE_DIM);
   const float PLAYER_Y = static_cast<float>(offset_y) + (movement.y * TILE_DIM);
   const float OFFSET_Y = 20.0F;
@@ -212,16 +212,16 @@ void CharacterPlayer::Render() {
   // Player box
   if (player::draw_bounds) {
     auto player_box = SDL_Rect{
-        (x_pos_min * frame_config_.GetTileDimentions()) + offset_x,
-        (y_pos_min * frame_config_.GetTileDimentions()) + offset_y,
-        ((x_pos_max - x_pos_min) * frame_config_.GetTileDimentions()) + frame_config_.GetTileDimentions(),
-        ((y_pos_max - y_pos_min) * frame_config_.GetTileDimentions()) + frame_config_.GetTileDimentions()
+        (x_pos_min * frame_config_.GetTileDimension()) + offset_x,
+        (y_pos_min * frame_config_.GetTileDimension()) + offset_y,
+        ((x_pos_max - x_pos_min) * frame_config_.GetTileDimension()) + frame_config_.GetTileDimension(),
+        ((y_pos_max - y_pos_min) * frame_config_.GetTileDimension()) + frame_config_.GetTileDimension()
     };
     auto player_character_box = SDL_Rect{
         static_cast<int>(PLAYER_X),
         static_cast<int>(PLAYER_Y),
-        frame_config_.GetTileDimentions(),
-        frame_config_.GetTileDimentions(),
+        frame_config_.GetTileDimension(),
+        frame_config_.GetTileDimension(),
     };
     auto map_box = SDL_Rect{
         offset_x,

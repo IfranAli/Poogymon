@@ -1,8 +1,8 @@
 #include "FrameConfig.h"
 #include "../Renderer.h"
 
-int FrameConfig::GetTileDimentions() const {
-  return tile_dimentions_;
+int FrameConfig::GetTileDimension() const {
+  return tile_dimensions_;
 }
 int FrameConfig::GetCols() const {
   return cols_;
@@ -24,13 +24,13 @@ int FrameConfig::GetOffsetY() const {
 }
 
 void FrameConfig::RecalculateWindowVariables() {
-  RecalculateWindowVariables(DimentionType{
+  RecalculateWindowVariables(DimensionType{
       .width = width_,
       .height = height_
   });
 }
 
-void FrameConfig::RecalculateWindowVariables(DimentionType dim) {
+void FrameConfig::RecalculateWindowVariables(DimensionType dim) {
   offset_x_ = dim.width - width_;
   offset_y_ = 0;
 

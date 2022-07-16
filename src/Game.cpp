@@ -58,7 +58,7 @@ void Game::GameLoop() {
       switch (event.type) {
         case SDL_WINDOWEVENT:
           if (event.window.event == SDL_WINDOWEVENT_RESIZED) {
-            frame_config_.RecalculateWindowVariables(DimentionType{
+            frame_config_.RecalculateWindowVariables(DimensionType{
                 .width= event.window.data1,
                 .height = event.window.data2
             });

@@ -83,7 +83,8 @@ namespace map {
   }
 
   bool Map::CanMoveLeft() const {
-    return (x - 1 >= x_min_);
+    auto result = (x - 1) > x_min_;
+    return result;
   }
 
   bool Map::CanMoveRight() const {
@@ -234,12 +235,13 @@ namespace map {
   int Map::GetY() const { return y; }
 
   void Map::RenderToScreen(bool recalculate) const {
+    // TODO: Handle left map.
     if (active == nullptr) {
       return;
     }
 
-    int xpos = this->x * frame_config_.GetTileDimentions();
-    int ypos = this->y * frame_config_.GetTileDimentions();
+    int xpos = this->x * frame_config_.GetTileDimension();
+    int ypos = this->y * frame_config_.GetTileDimension();
     auto screen_w = frame_config_.GetWidth();
     auto screen_h = frame_config_.GetHeight();
     auto screen_start_x = frame_config_.GetOffsetX();
@@ -248,7 +250,7 @@ namespace map {
     SDL_Rect src{xpos, ypos, screen_w, screen_h};
     SDL_Rect dest{screen_start_x, screen_start_y, screen_w, screen_h};
 
-    auto tile_dim = static_cast<float>(frame_config_.GetTileDimentions());
+    auto tile_dim = static_cast<float>(frame_config_.GetTileDimension());
 
     auto offset_x = 0;
     if (x > 0) {
@@ -368,16 +370,16 @@ namespace map {
   }
 
   void Map::SetTile(int mx, int my, int tile) const {
-//    mx = (mx - config::SCREEN_OFFSET_X) / config::TILE_DIM;
-//    my = (my - config::SCREEN_OFFSET_Y) / config::TILE_DIM;
-//    my += y;
-//    mx += x;
-//
-//    if (mx > (int) total_width_ || my > (int) total_height_) {
-//      printf("Invalid Mouse X:%d, Y:%d\n", mx, my);
-//    }
-//
-//    active->SetTile(mx, my, tile);
+    mx = (mx - frame_config_.GetOffsetX()) / frame_config_.GetTileDimension();
+    my = (my - frame_config_.GetOffsetY()) / frame_config_.GetTileDimension();
+    my += y;
+    mx += x;
+
+    if (mx > (int) total_width_ || my > (int) total_height_) {
+      printf("Invalid Mouse X:%d, Y:%d\n", mx, my);
+    }
+
+    active->SetTile(mx, my, tile);
   }
 
   void Map::SaveMap(size_t index) {

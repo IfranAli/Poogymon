@@ -38,7 +38,7 @@ namespace sdl {
                               frame_config.GetHeight(),
                               SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
 
-    frame_config.RecalculateWindowVariables(DimentionType{
+    frame_config.RecalculateWindowVariables(DimensionType{
         .width =frame_config.GetWidth(),
         .height = frame_config.GetHeight(),
     });

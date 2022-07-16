@@ -28,25 +28,26 @@ namespace editor {
   bool show_tileset = false;
 
   void GetTile() {
-//    auto x = input::mouse_x;
-//    auto y = input::mouse_y;
-//    auto result = 0;
-//
-//    if (editor::show_tileset && (x < config::SCREEN_OFFSET_X)) {
-//      auto &tile_set = map::active_map->active->map_tileset;
-//      result = tile_set.GetTile(x, y);
-//    } else {
-//      result = map::active_map->GetTileFromMouse(x, y);
-//    }
-//    std::printf("got tile %d\n", result);
-//
-//    if (result >= 0) {
-//      selected_tile = result;
-//    }
+    auto x = input::mouse_x;
+    auto y = input::mouse_y;
+    auto result = 0;
+
+    if (editor::show_tileset && (x < sdl::g_frame_config->GetOffsetX())) {
+      auto &tile_set = map::active_map->active->map_tileset;
+      result = tile_set.GetTile(x, y);
+    } else {
+      result = map::active_map->GetTileFromMouse(x, y);
+    }
+    std::printf("got tile %d\n", result);
+
+    if (result >= 0) {
+      selected_tile = result;
+    }
   }
 
   void PlaceTile() {
     map::active_map->SetTile(::input::mouse_x, ::input::mouse_y, selected_tile);
+    map::active_map->active->DrawMap();
   }
 
   void DrawTileset() {
@@ -61,7 +62,7 @@ namespace editor {
 
       SDL_Rect dest = src;
 
-      SDL_RenderCopy(sdl::renderer, texture.mTexture, NULL, &dest);
+      SDL_RenderCopy(sdl::renderer, texture.mTexture, &src, &dest);
     }
   }
 
@@ -70,7 +71,7 @@ namespace editor {
     if (editor::show_tileset) {
       auto tileset_width = map::active_map->active->map_tileset.texture.mWidth;
 
-      sdl::g_frame_config->RecalculateWindowVariables(DimentionType{
+      sdl::g_frame_config->RecalculateWindowVariables(DimensionType{
           .width = sdl::g_frame_config->GetWidth() + tileset_width,
           .height = sdl::g_frame_config->GetHeight(),
       });
