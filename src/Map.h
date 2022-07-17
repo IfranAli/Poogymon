@@ -85,8 +85,8 @@ namespace map {
 
    private:
     FrameConfig &frame_config_;
-    int border_tiles_[4] = {4, 5, 12, 13};
-    map_data::MapData border_map_ = map_data::MapData("tile.png", border_tiles_);
+    map_data::TilePattern border_tile_pattern_ = map_data::TilePattern(4, 5, 12, 13);
+    map_data::MapData border_map_ = map_data::MapData("tile.png", border_tile_pattern_);
     bool show_tile_set_ = true;
   };
 

@@ -14,27 +14,28 @@ class CharacterPlayer final : public Character {
   void Tick() override;
   void Render() override;
 
-  int mov_boundary_x = 2;
-  int mov_boundary_y = 2;
-
-  bool draw_map = true;
-
  private:
   map::Map *map_;
+
   void ResetBoundingBox();
-  const char *texture_path = "Resource/red.png";
-  Texture::Tileset texture;
+  void CalculateBoundingBox();
+
+  const char *texture_path_ = "Resource/red.png";
+  Texture::Tileset texture_;
   FrameConfig &frame_config_;
 
-  int x_max{};
-  int y_max{};
-  int x_min{};
-  int y_min{};
+  int mov_boundary_x_ = 2;
+  int mov_boundary_y_ = 2;
 
-  int x_pos_min = 0;
-  int x_pos_max = 0;
-  int y_pos_min = 0;
-  int y_pos_max = 0;
+  int x_max_{};
+  int y_max_{};
+  int x_min_{};
+  int y_min_{};
+
+  int x_pos_min_ = 0;
+  int x_pos_max_ = 0;
+  int y_pos_min_ = 0;
+  int y_pos_max_ = 0;
 };
 
 namespace player {

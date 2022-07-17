@@ -2,6 +2,7 @@
 #include "Texture.h"
 #include "Tileset.h"
 #include "Objects/FrameConfig.h"
+#include <array>
 
 namespace map_data {
 
@@ -13,6 +14,26 @@ namespace map_data {
     MapData *Down = nullptr;
   };
 
+  struct TilePattern {
+    TilePattern(int tile) {
+      tiles.fill(tile);
+    }
+
+    TilePattern(int tile_1, int tile_2, int tile_3, int tile_4) {
+      tiles[0] = tile_1;
+      tiles[1] = tile_2;
+      tiles[2] = tile_3;
+      tiles[3] = tile_4;
+    }
+
+    std::array<int, 4> &GetTilesArray() {
+      return tiles;
+    }
+
+   private:
+    std::array<int, 4> tiles{0, 0, 0, 0};
+  };
+
   class MapData {
    public:
     MapData();
@@ -21,7 +42,7 @@ namespace map_data {
     MapData(MapData &&t) noexcept;
 
     MapData(std::string filename, std::string filename_texture);
-    explicit MapData(std::string filename_texture, int tiles[4]);
+    explicit MapData(std::string filename_texture, TilePattern &tile_pattern);
 
     MapData &operator=(MapData &&) noexcept;
 
@@ -30,7 +51,7 @@ namespace map_data {
     void SaveMap(const std::string &filename);
     void SaveMap();
     void LoadMap();
-    void MakeEmpty(std::string &texture_file_name, const int tile[4]);
+    void MakeEmpty(std::string &texture_file_name, TilePattern &tile_pattern);
     void PrintMap();
 
     int GetTile(int col, int row);
@@ -41,13 +62,13 @@ namespace map_data {
     [[nodiscard]] int GetMapWidth() const;
     [[nodiscard]] int GetMapHeight() const;
 
-    std::string filename;
-    Connections connections;
-    Texture::Texture map_texture;
-    Texture::Tileset map_tileset;
+    std::string filename_;
+    Connections connections_;
+    Texture::Texture map_texture_;
+    Texture::Tileset map_tileset_;
    private:
 
-    int map_data_[config::MAP_ARRAY_SIZE];
+    std::array<int, config::MAP_ARRAY_SIZE> map_data_;
     int map_height_ = 0;
     int map_width_ = 0;
 

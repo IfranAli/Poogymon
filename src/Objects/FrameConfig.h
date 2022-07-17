@@ -33,8 +33,8 @@ class FrameConfig {
   const int cols_ = config::TILE_PER_COLUMN;
   const int rows_ = config::TILE_PER_ROW;
 
-  int width_ = cols_ * config::TILE_DIMENSIONS;
-  int height_ = rows_ * config::TILE_DIMENSIONS;
+  const int width_ = cols_ * config::TILE_DIMENSIONS;
+  const int height_ = rows_ * config::TILE_DIMENSIONS;
   int offset_x_ = 0;
   int offset_y_ = 0;
   int window_width_ = width_;

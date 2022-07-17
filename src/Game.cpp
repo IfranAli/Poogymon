@@ -83,7 +83,6 @@ void Game::GameLoop() {
 
     if (player::is_visible) {
       player_.Tick();
-      player_.draw_map = false;
     }
 
     render::DrawStack();

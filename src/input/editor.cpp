@@ -33,7 +33,7 @@ namespace editor {
     auto result = 0;
 
     if (editor::show_tileset && (x < sdl::g_frame_config->GetOffsetX())) {
-      auto &tile_set = map::active_map->active->map_tileset;
+      auto &tile_set = map::active_map->active->map_tileset_;
       result = tile_set.GetTile(x, y);
     } else {
       result = map::active_map->GetTileFromMouse(x, y);
@@ -54,7 +54,7 @@ namespace editor {
   void DrawTileset() {
     if (editor::show_tileset) {
       FrameConfig frame_config;
-      auto &texture = map::active_map->active->map_tileset.texture;
+      auto &texture = map::active_map->active->map_tileset_.texture;
 
       SDL_Rect src;
       src.x = src.y = 0;
@@ -70,7 +70,7 @@ namespace editor {
   void OnEnable() {
     editor::show_tileset = true;
     if (editor::show_tileset) {
-      auto tileset_width = map::active_map->active->map_tileset.texture.mWidth;
+      auto tileset_width = map::active_map->active->map_tileset_.texture.mWidth;
 
       sdl::g_frame_config->RecalculateWindowVariables(DimensionType{
           .width = sdl::g_frame_config->GetWidth() + tileset_width,

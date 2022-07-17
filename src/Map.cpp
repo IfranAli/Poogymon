@@ -61,13 +61,13 @@ namespace map {
     switch (type) {
       case ACTIVE:return map_data_list[ACTIVE];
         break;
-      case LEFT_CONNECTION:return *map_data_list[MapIndex::ACTIVE].connections.Left;
+      case LEFT_CONNECTION:return *map_data_list[MapIndex::ACTIVE].connections_.Left;
         break;
-      case RIGHT_CONNECTION:return *map_data_list[MapIndex::ACTIVE].connections.Right;
+      case RIGHT_CONNECTION:return *map_data_list[MapIndex::ACTIVE].connections_.Right;
         break;
-      case TOP_CONNECTION:return *map_data_list[MapIndex::ACTIVE].connections.Up;
+      case TOP_CONNECTION:return *map_data_list[MapIndex::ACTIVE].connections_.Up;
         break;
-      case BOTTOM_CONNECTION:return *map_data_list[MapIndex::ACTIVE].connections.Down;
+      case BOTTOM_CONNECTION:return *map_data_list[MapIndex::ACTIVE].connections_.Down;
         break;
     }
   }
@@ -99,35 +99,6 @@ namespace map {
     }
   }
 
-  void MoveSmooth(Direction move_direction, bool move_camera) {
-    if (moving) {
-      return;
-    }
-
-    auto is_moving_x_axis = (move_direction == Direction::LEFT || move_direction == Direction::RIGHT);
-    direction = move_direction;
-    pole = move_direction;
-
-    if (CanMove(move_direction)) {
-      if (move_camera) {
-        axis = (is_moving_x_axis ? &map::active_map->x : &map::active_map->y);
-      } else {
-        axis = (is_moving_x_axis ? &x : &y);
-      }
-
-//      switch (move_direction) {
-//        case UP:break;
-//        case DOWN:break;
-//        case LEFT:break;
-//        case RIGHT:break;
-//      }
-
-      target = *axis + (direction);
-      *axis += (direction * speed) * sdl::deltatime;
-      moving = true;
-    }
-  }
-
   void MoveSmooth(int vx, int vy, bool move_camera) {
     if (moving)
       return;
@@ -156,27 +127,23 @@ namespace map {
     }
   }
 
-//  Map::Map(const std::string &master_file_name) {
-//    puts("Not implemented");
-//    return;
-//  }
-
-  namespace {
-    int tile_0[4]{0, 0, 0, 0};
-    int tile_1[4]{1, 1, 1, 1};
-    int tile_2[4]{2, 2, 2, 2};
-    int tile_3[4]{8, 8, 8, 8};
-  }
-
   Map::Map(FrameConfig &frame_config) : frame_config_(frame_config) {
-    map_data_list[MapIndex::ACTIVE] = map_data::MapData("tile.png", tile_0);
-    map_data_list[MapIndex::RIGHT_CONNECTION] = map_data::MapData("tile.png", tile_1);
-    map_data_list[MapIndex::LEFT_CONNECTION] = map_data::MapData("tile.png", tile_2);
-    map_data_list[MapIndex::BOTTOM_CONNECTION] = map_data::MapData("tile.png", tile_3);
+    map_data::TilePattern tile_pattern_1(0);
+    map_data::TilePattern tile_pattern_2(11, 0, 0, 11);
+    map_data::TilePattern tile_pattern_3(2);
+    map_data::TilePattern tile_pattern_4(8);
+    map_data::TilePattern tile_pattern_5(25);
 
-    map_data_list[ACTIVE].connections.Right = &map_data_list[RIGHT_CONNECTION];
-    map_data_list[ACTIVE].connections.Left = &map_data_list[LEFT_CONNECTION];
-    map_data_list[ACTIVE].connections.Down = &map_data_list[BOTTOM_CONNECTION];
+    map_data_list[MapIndex::ACTIVE] = map_data::MapData("tile.png", tile_pattern_1);
+    map_data_list[MapIndex::RIGHT_CONNECTION] = map_data::MapData("tile.png", tile_pattern_2);
+    map_data_list[MapIndex::LEFT_CONNECTION] = map_data::MapData("tile.png", tile_pattern_3);
+    map_data_list[MapIndex::BOTTOM_CONNECTION] = map_data::MapData("tile.png", tile_pattern_4);
+    map_data_list[MapIndex::TOP_CONNECTION] = map_data::MapData("tile.png", tile_pattern_5);
+
+    map_data_list[ACTIVE].connections_.Right = &map_data_list[RIGHT_CONNECTION];
+    map_data_list[ACTIVE].connections_.Left = &map_data_list[LEFT_CONNECTION];
+    map_data_list[ACTIVE].connections_.Down = &map_data_list[BOTTOM_CONNECTION];
+    map_data_list[ACTIVE].connections_.Up = &map_data_list[TOP_CONNECTION];
 
     AddMapData(map_data_list[ACTIVE]);
     moving = false;
@@ -211,23 +178,23 @@ namespace map {
     this->x_max_ += total_width_;
     this->y_max_ += total_height_;
 
-    if (active->connections.Right != nullptr) {
-      auto width = active->connections.Right->GetMapWidth();
+    if (active->connections_.Right != nullptr) {
+      auto width = active->connections_.Right->GetMapWidth();
       this->total_width_ += width;
       this->x_max_ += width;
     }
-    if (active->connections.Left != nullptr) {
-      auto width = active->connections.Left->GetMapWidth();
+    if (active->connections_.Left != nullptr) {
+      auto width = active->connections_.Left->GetMapWidth();
       this->total_width_ += width;
       this->x_min_ -= width;
     }
-    if (active->connections.Up != nullptr) {
-      auto width = active->connections.Up->GetMapWidth();
+    if (active->connections_.Up != nullptr) {
+      auto width = active->connections_.Up->GetMapWidth();
       this->total_height_ += width;
       this->y_min_ -= width;
     }
-    if (active->connections.Down != nullptr) {
-      auto height = active->connections.Down->GetMapHeight();
+    if (active->connections_.Down != nullptr) {
+      auto height = active->connections_.Down->GetMapHeight();
       this->total_height_ += height;
       this->y_max_ += height;
     }
@@ -240,7 +207,6 @@ namespace map {
   int Map::GetY() const { return y; }
 
   void Map::RenderToScreen(bool recalculate) const {
-    // TODO: Handle left map.
     if (active == nullptr) {
       return;
     }
@@ -255,13 +221,13 @@ namespace map {
     SDL_Rect src{xpos, ypos, screen_w, screen_h};
     SDL_Rect dest{screen_start_x, screen_start_y, screen_w, screen_h};
 
-    auto tile_dim = static_cast<float>(frame_config_.GetTileDimension());
-
+    auto offset_x_start = 0;
     auto offset_x = 0;
+
     if (x > 0) {
       src.x = 0;
       src.y = ypos;
-      src.w = static_cast<int>(this->x * tile_dim);
+      src.w = static_cast<int>(this->x * config::TILE_DIMENSIONS);
       src.h = screen_h - ypos;
 
       dest.x = screen_start_x + (screen_w - xpos);
@@ -274,14 +240,42 @@ namespace map {
       if (active_map->HasConnection(RIGHT_CONNECTION)) {
         SDL_RenderCopy(
             sdl::renderer,
-            active_map->active->connections.Right->map_texture.mTexture,
+            active_map->active->connections_.Right->map_texture_.mTexture,
             &src,
             &dest
         );
       } else {
         SDL_RenderCopy(
             sdl::renderer,
-            border_map_.map_texture.mTexture,
+            border_map_.map_texture_.mTexture,
+            &src,
+            &dest
+        );
+      }
+    } else if (x < 0) {
+      auto x_abs = abs(x);
+      xpos = x_abs;
+      src.x = screen_w - (x_abs * config::TILE_DIMENSIONS);
+      src.y = ypos;
+      src.w = static_cast<int>(x_abs * config::TILE_DIMENSIONS);
+      src.h = screen_h - ypos;
+
+      offset_x_start = src.w;
+      dest = src;
+      dest.x = screen_start_x;
+      dest.y = screen_start_y;
+
+      if (active_map->HasConnection(LEFT_CONNECTION)) {
+        SDL_RenderCopy(
+            sdl::renderer,
+            active_map->active->connections_.Left->map_texture_.mTexture,
+            &src,
+            &dest
+        );
+      } else {
+        SDL_RenderCopy(
+            sdl::renderer,
+            border_map_.map_texture_.mTexture,
             &src,
             &dest
         );
@@ -292,11 +286,11 @@ namespace map {
     if (y > 0) {
       src.x = offset_x;
       src.y = 0;
-      src.w = (frame_config_.GetCols() * tile_dim) - offset_x;
+      src.w = screen_w - offset_x;
       src.h = static_cast<int>(ypos);
 
-      dest.x = screen_start_x;
-      dest.y = screen_start_y + static_cast<int>(static_cast<float>(screen_h) - (this->y * tile_dim));
+      dest.x = screen_start_x + offset_x_start;
+      dest.y = screen_start_y + (screen_h - (this->y * config::TILE_DIMENSIONS));
       dest.h = src.h;
       dest.w = src.w;
 
@@ -305,14 +299,14 @@ namespace map {
       if (active_map->HasConnection(BOTTOM_CONNECTION)) {
         SDL_RenderCopy(
             sdl::renderer,
-            active_map->active->connections.Down->map_texture.mTexture,
+            active_map->active->connections_.Down->map_texture_.mTexture,
             &src,
             &dest
         );
       } else {
         SDL_RenderCopy(
             sdl::renderer,
-            border_map_.map_texture.mTexture,
+            border_map_.map_texture_.mTexture,
             &src,
             &dest
         );
@@ -324,21 +318,20 @@ namespace map {
     src.w = screen_w;
     src.h = screen_h;
 
-    dest.x = screen_start_x;
+    dest.x = screen_start_x + offset_x_start;
     dest.y = screen_start_y;
     dest.w = screen_w - offset_x;
     dest.h = screen_h - offset_y;
 
     SDL_RenderCopy(
         sdl::renderer,
-        map::active_map->active->map_texture.mTexture,
+        map::active_map->active->map_texture_.mTexture,
         &src,
         &dest
     );
 
-    // Render border map for diagnal connections.
+    // Render border map for bottom left..
     if (offset_x > 0 && offset_y > 0) {
-
       src.x = 0;
       src.y = 0;
       src.w = offset_x;
@@ -349,7 +342,25 @@ namespace map {
       dest.y = screen_start_y + (screen_h - offset_y);
       SDL_RenderCopy(
           sdl::renderer,
-          border_map_.map_texture.mTexture,
+          border_map_.map_texture_.mTexture,
+          &src,
+          &dest
+      );
+    }
+
+    if (offset_x_start > 0 && offset_y > 0 ) {
+      src.x = screen_w - offset_x_start;
+      src.y = 0;
+      src.w = offset_x_start;
+      src.h = offset_y;
+
+      dest = src;
+      dest.x = 0;
+      dest.y = screen_start_y +  (screen_h - offset_y);
+
+      SDL_RenderCopy(
+          sdl::renderer,
+          border_map_.map_texture_.mTexture,
           &src,
           &dest
       );
@@ -403,8 +414,8 @@ namespace map {
     std::vector<std::string> map_names{};
 
     for (auto &map_data: map_data_list) {
-      if (!map_data.filename.empty()) {
-        map_names.push_back(map_data.filename);
+      if (!map_data.filename_.empty()) {
+        map_names.push_back(map_data.filename_);
       }
     }
 

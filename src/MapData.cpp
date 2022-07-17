@@ -10,56 +10,56 @@
 
 namespace map_data {
   MapData::MapData() {
-    connections = {nullptr, nullptr, nullptr, nullptr};
+    connections_ = {nullptr, nullptr, nullptr, nullptr};
   }
 
-  MapData::MapData(std::string texture_file_name, int tiles[4]) {
-    connections = {nullptr, nullptr, nullptr, nullptr};
-    MakeEmpty(texture_file_name, tiles);
+  MapData::MapData(std::string texture_file_name, TilePattern &tile_pattern) {
+    connections_ = {nullptr, nullptr, nullptr, nullptr};
+    MakeEmpty(texture_file_name, tile_pattern);
 
     PrintMap();
     DrawMap();
   }
 
   MapData::MapData(std::string filename, std::string filename_texture) {
-    connections = {nullptr, nullptr, nullptr, nullptr};
+    connections_ = {nullptr, nullptr, nullptr, nullptr};
     LoadMap(filename, filename_texture);
   }
 
   MapData::MapData(MapData &t) noexcept {
-    filename = std::exchange(t.filename, {});
+    filename_ = std::exchange(t.filename_, {});
     map_width_ = std::exchange(t.map_width_, 0);
     map_height_ = std::exchange(t.map_height_, 0);
-    std::swap(connections, t.connections);
-    std::swap(map_tileset, t.map_tileset);
-    std::swap(map_texture, t.map_texture);
+    std::swap(connections_, t.connections_);
+    std::swap(map_tileset_, t.map_tileset_);
+    std::swap(map_texture_, t.map_texture_);
   }
 
   MapData &MapData::operator=(MapData &&t) noexcept {
-    filename = std::exchange(t.filename, {});
+    filename_ = std::exchange(t.filename_, {});
 
     for (auto i{0}; i < t.map_width_ * t.map_height_; ++i) {
       map_data_[i] = t.map_data_[i];
     }
     map_width_ = std::exchange(t.map_width_, 0);
     map_height_ = std::exchange(t.map_height_, 0);
-    std::swap(connections, t.connections);
-    std::swap(map_tileset, t.map_tileset);
-    std::swap(map_texture, t.map_texture);
+    std::swap(connections_, t.connections_);
+    std::swap(map_tileset_, t.map_tileset_);
+    std::swap(map_texture_, t.map_texture_);
     return *this;
   }
 
 // Move constructor
   MapData::MapData(MapData &&t) noexcept {
-    filename = std::exchange(t.filename, {});
+    filename_ = std::exchange(t.filename_, {});
     map_width_ = std::exchange(t.map_width_, 0);
     map_height_ = std::exchange(t.map_height_, 0);
-//  connections = std::exchange(t.connections, {});
-    std::swap(connections, t.connections);
+//  connections_ = std::exchange(t.connections_, {});
+    std::swap(connections_, t.connections_);
   }
 
   MapData::~MapData() {
-    std::printf("map_data Dtor - %s \n", filename.c_str());
+    std::printf("map_data Dtor - %s \n", filename_.c_str());
     FreeMemory();
     std::printf("map_data Dtor - OK \n");
   }
@@ -71,10 +71,10 @@ namespace map_data {
     SDL_Rect grass_tile{0, 0, dim, dim};
     SDL_Rect src_tile{1, 0, dim, dim};
     SDL_Rect dest_tile = src_tile;
-    auto tileset_info = Texture::getTilesetInfo(&map_tileset.texture, dim, dim);
+    auto tileset_info = Texture::getTilesetInfo(&map_tileset_.texture, dim, dim);
 
     // Set render target to texture
-    SDL_SetRenderTarget(sdl::renderer, map_texture.mTexture);
+    SDL_SetRenderTarget(sdl::renderer, map_texture_.mTexture);
 
     for (int i = 0; i < frame_config.GetRows(); ++i) {
       for (int j = 0; j < frame_config.GetCols(); ++j) {
@@ -82,19 +82,19 @@ namespace map_data {
         auto y_dim = dim * i;
         auto tile = GetTile(j, i);
 
-        Texture::getTile(map_tileset.texture, tileset_info, tile, src_tile);
+        Texture::getTile(map_tileset_.texture, tileset_info, tile, src_tile);
         dest_tile.x = x_dim;
         dest_tile.y = y_dim;
 
         SDL_RenderCopy(
             sdl::renderer,
-            map_tileset.texture.mTexture,
+            map_tileset_.texture.mTexture,
             &grass_tile,
             &dest_tile
         );
         SDL_RenderCopy(
             sdl::renderer,
-            map_tileset.texture.mTexture,
+            map_tileset_.texture.mTexture,
             &src_tile,
             &dest_tile
         );
@@ -106,9 +106,9 @@ namespace map_data {
 
   bool MapData::LoadMap(const std::string &p_file_name, const std::string &p_file_name_texture) {
     FreeMemory();
-    filename = p_file_name;
+    filename_ = p_file_name;
 
-    std::ifstream ifs(filename);
+    std::ifstream ifs(filename_);
     ifs >> map_width_ >> map_height_;
 
     size_t array_size = map_width_ * map_height_;
@@ -117,7 +117,7 @@ namespace map_data {
       return false;
     }
 
-    printf("Creating Map: %s\n", filename.c_str());
+    printf("Creating Map: %s\n", filename_.c_str());
 
     for (unsigned i = 0; i < array_size; ++i) {
       unsigned int tile = 0;
@@ -130,11 +130,11 @@ namespace map_data {
     unsigned int width = config::TILE_DIMENSIONS * map_width_;
     unsigned int height = config::TILE_DIMENSIONS * map_height_;
 
-    Texture::MakeEmpty(map_texture, *sdl::renderer, width, height);
+    Texture::MakeEmpty(map_texture_, *sdl::renderer, width, height);
 
     std::string file_path = "Resource/" + p_file_name_texture;
     Texture::LoadFromFile(*sdl::renderer,
-                          map_tileset,
+                          map_tileset_,
                           file_path.c_str(),
                           config::TILE_DIMENSIONS,
                           config::TILE_DIMENSIONS);
@@ -143,47 +143,48 @@ namespace map_data {
     PrintMap();
     DrawMap();
 
-    printf("Loaded map_data: %s\n", filename.c_str());
+    printf("Loaded map_data: %s\n", filename_.c_str());
 
     return true;
   }
 
   void MapData::SaveMap() {
-    if (!filename.empty()) {
-      SaveMap(filename);
+    if (!filename_.empty()) {
+      SaveMap(filename_);
     }
   }
 
   void MapData::LoadMap() {
-    if (!filename.empty() && !map_tileset.texture.filename.empty()) {
-      LoadMap(filename, map_tileset.texture.filename);
+    if (!filename_.empty() && !map_tileset_.texture.filename.empty()) {
+      LoadMap(filename_, map_tileset_.texture.filename);
     }
   }
 
-  void MapData::MakeEmpty(std::string &texture_file_name, const int tiles[4]) {
+  void MapData::MakeEmpty(std::string &texture_file_name, TilePattern &tile_pattern) {
     FreeMemory();
 
     map_width_ = config::TILE_PER_COLUMN;
     map_height_ = config::TILE_PER_ROW;
 
+    std::array<int, 4> tiles = tile_pattern.GetTilesArray();
     auto tile = 0;
 
     for (auto y = 0; y < map_height_; ++y) {
       tile = (y % 2) ? 0 : 2;
 
       for (auto x = 0; x < map_width_; ++x) {
-        map_data_[(y * map_width_) + x] = tiles[tile + (x % 2)];
+        map_data_[(y * map_width_) + x] = tiles.at(tile + (x % 2));
       }
     }
 
-    size_t width = config::TILE_DIMENSIONS * map_width_;
-    size_t height = config::TILE_DIMENSIONS * map_height_;
+    int width = config::TILE_DIMENSIONS * map_width_;
+    int height = config::TILE_DIMENSIONS * map_height_;
 
-    Texture::MakeEmpty(map_texture, *sdl::renderer, width, height);
+    Texture::MakeEmpty(map_texture_, *sdl::renderer, width, height);
 
     std::string file_path = "Resource/" + texture_file_name;
     Texture::LoadFromFile(*sdl::renderer,
-                          map_tileset,
+                          map_tileset_,
                           file_path.c_str(),
                           config::TILE_DIMENSIONS,
                           config::TILE_DIMENSIONS);
@@ -202,7 +203,7 @@ namespace map_data {
 //        unsigned int tile = p_map_data[i];
 //        std::cout << tile << ' ';
 
-    this->filename = filename;
+    this->filename_ = filename;
     std::ofstream ofs(filename);
 //
     ofs << map_width_ << ' ' << map_height_ << ' ';
@@ -253,10 +254,10 @@ namespace map_data {
     }
 
     if (row >= map_height_) {
-      return ((connections.Up) ? connections.Up->GetTile(col, row % map_height_) : -1);
+      return ((connections_.Up) ? connections_.Up->GetTile(col, row % map_height_) : -1);
     }
     if (col >= map_width_) {
-      return ((connections.Right) ? connections.Right->GetTile(col % map_width_, row) : -1);
+      return ((connections_.Right) ? connections_.Right->GetTile(col % map_width_, row) : -1);
     }
 
     return map_data_[row * map_width_ + col];
@@ -277,14 +278,14 @@ namespace map_data {
     }
 
     if (row >= map_height_) {
-      if (connections.Up) {
-        connections.Up->SetTile(col, row % map_height_, t);
+      if (connections_.Up) {
+        connections_.Up->SetTile(col, row % map_height_, t);
       }
       return;
     }
     if (col >= map_width_) {
-      if (connections.Right) {
-        connections.Right->SetTile(col % map_width_, row, t);
+      if (connections_.Right) {
+        connections_.Right->SetTile(col % map_width_, row, t);
       }
       return;
     }
@@ -298,15 +299,15 @@ namespace map_data {
     int tile_x = col * config::TILE_DIMENSIONS;
     int tile_y = row * config::TILE_DIMENSIONS;
 
-    Texture::SetAsRenderTarget(map_texture, *sdl::renderer);
+    Texture::SetAsRenderTarget(map_texture_, *sdl::renderer);
 
     //int tile = GetTile(col, row);
     //printf("PLACING TILE %d\n", tile);
-    //map_tileset.Render(0, NULL, tile_x, tile_y); // Grass.
-    //map_tileset.Render(GetTile(col, row), NULL, tile_x, tile_y);
+    //map_tileset_.Render(0, NULL, tile_x, tile_y); // Grass.
+    //map_tileset_.Render(GetTile(col, row), NULL, tile_x, tile_y);
 
-    Texture::Render(*sdl::renderer, map_tileset, 0, tile_x, tile_y);
-    Texture::Render(*sdl::renderer, map_tileset, GetTile(col, row), tile_x, tile_y);
+    Texture::Render(*sdl::renderer, map_tileset_, 0, tile_x, tile_y);
+    Texture::Render(*sdl::renderer, map_tileset_, GetTile(col, row), tile_x, tile_y);
 
     SDL_SetRenderTarget(sdl::renderer, NULL);
   }

@@ -4,22 +4,12 @@
 namespace player {
   bool is_visible = false;
   bool draw_bounds = true;
-}
 
-void CharacterPlayer::ResetBoundingBox() {
-  auto config = frame_config_;
-
-  x_min = (config.GetCols() / 2) - (mov_boundary_x / 2);
-  y_min = (config.GetRows() / 2) - (mov_boundary_y / 2);
-
-  x_max = x_min + mov_boundary_x;
-  y_max = y_min + mov_boundary_y;
-
-  /* Place character inside bounds */
-  Character::movement.x = static_cast<float>(x_min);
-  Character::movement.y = static_cast<float>(y_min);
-
-  printf("Player - bounding box update: W:%lu, H:%lu\n", mov_boundary_x, mov_boundary_y);
+  constexpr float BASE_ANIMATION_SPEED = 11;
+  constexpr float BASE_MOVEMENT_SPEED = 3;
+  constexpr float RUNNING_SPEED = 1.8;
+  constexpr float RUN_ANIMATION_SPEED = BASE_ANIMATION_SPEED * RUNNING_SPEED;
+  constexpr float RUN_MOVEMENT_SPEED = BASE_MOVEMENT_SPEED * RUNNING_SPEED;
 }
 
 CharacterPlayer::~CharacterPlayer() = default;
@@ -28,15 +18,48 @@ CharacterPlayer::CharacterPlayer(FrameConfig &frame_config, map::Map *map) :
     map_(map),
     frame_config_(frame_config) {
 
-  Texture::LoadFromFile(*sdl::renderer, texture, texture_path, 32, 48);
+  Texture::LoadFromFile(*sdl::renderer, texture_, texture_path_, 32, 48);
   ResetBoundingBox();
 }
 
-constexpr float base_animation_speed = 11;
-constexpr float base_movement_speed = 3;
-constexpr float running_speed = 1.8;
-constexpr float run_animation_speed = base_animation_speed * running_speed;
-constexpr float run_movement_speed = base_movement_speed * running_speed;
+void CharacterPlayer::ResetBoundingBox() {
+  auto config = frame_config_;
+
+  x_min_ = (config.GetCols() / 2) - (mov_boundary_x_ / 2);
+  y_min_ = (config.GetRows() / 2) - (mov_boundary_y_ / 2);
+
+  x_max_ = x_min_ + mov_boundary_x_;
+  y_max_ = y_min_ + mov_boundary_y_;
+
+  /* Place character inside bounds */
+  Character::movement.x = static_cast<float>(x_min_);
+  Character::movement.y = static_cast<float>(y_min_);
+
+  printf("Player - bounding box update: W:%lu, H:%lu\n", mov_boundary_x_, mov_boundary_y_);
+}
+
+void CharacterPlayer::CalculateBoundingBox() {
+  y_min_ = (frame_config_.GetRows() / 2) - (mov_boundary_y_ / 2);
+  y_max_ = y_min_ + mov_boundary_y_;
+  x_min_ = (frame_config_.GetCols() / 2) - (mov_boundary_x_ / 2);
+  x_max_ = x_min_ + mov_boundary_x_;
+
+  if (map_->y == 0) {
+    y_min_ = 0;
+  }
+
+  if (map_->y == config::TILE_PER_ROW) {
+    y_max_ = config::TILE_PER_ROW;
+  }
+
+  if (map_->x == -(config::TILE_PER_COLUMN)) {
+    x_min_ = -(config::TILE_PER_COLUMN);
+  }
+
+  if (map_->x == config::TILE_PER_COLUMN) {
+    x_max_ = config::TILE_PER_COLUMN;
+  }
+}
 
 void CharacterPlayer::Tick() {
   // Step any animations
@@ -84,74 +107,40 @@ void CharacterPlayer::Tick() {
       (mVelocityX == 0) ? (mVelocityY == 1 ? map::DOWN : map::UP) : (mVelocityX == 1 ? map::RIGHT : map::LEFT);
 
   if (is_running) {
-    animation.speed = run_animation_speed;
-    movement.speed = run_movement_speed;
+    animation.speed = player::RUN_ANIMATION_SPEED;
+    movement.speed = player::RUN_MOVEMENT_SPEED;
   } else {
-    animation.speed = base_animation_speed;
-    movement.speed = base_movement_speed;
+    animation.speed = player::BASE_ANIMATION_SPEED;
+    movement.speed = player::BASE_MOVEMENT_SPEED;
   }
 
   int potential_x = map::active_map->GetX() + movement.x + mVelocityX;
   int potential_y = map::active_map->GetY() + movement.y + mVelocityY;
 
-  const int MAX_POTENTIAL_X = map_->x_max_;
-  const int MAX_POTENTIAL_Y = map_->y_max_;
-
-  if (potential_x < 0 || potential_x > MAX_POTENTIAL_X) {
-    return;
-  }
-
-  if (potential_y < 0 || potential_y >= MAX_POTENTIAL_Y) {
-    return;
-  }
-
-  printf("X: %d, Y: %d\n", potential_x, potential_y);
-
-  auto canMoveRight = potential_x > 0 || potential_x != MAX_POTENTIAL_X;
-  auto canMoveLeft = potential_x > 0;
-  auto canMoveUp = potential_y > 0;
-  auto canMoveDown = potential_y > 0 || potential_y != MAX_POTENTIAL_Y;
-
-  auto cols = frame_config_.GetCols();
-  auto rows = frame_config_.GetRows();
-
   auto x_pos = static_cast<int>(movement.x);
   auto y_pos = static_cast<int>(movement.y);
 
-  x_pos_min = x_min;
-  x_pos_max = x_max;
-  y_pos_min = y_min;
-  y_pos_max = y_max;
+  CalculateBoundingBox();
 
-  if (x_pos <= x_min && (map_->x == 0.0F)) {
-    x_pos_min = 0;
-    if (potential_x < 0) {
-      return;
-    }
-  } else if (x_pos >= x_max && (map_->x == static_cast<float>(this->map_->x_max_ - this->frame_config_.GetCols()))) {
-    x_pos_max = frame_config_.GetCols() - 1;
-    if (potential_x >= MAX_POTENTIAL_X) {
-      return;
-    }
-  } else {
+  if (map_->y == -(config::TILE_PER_ROW) && potential_y < y_min_) {
+    return;
   }
 
-  if (y_pos <= y_min && (map_->y == 0.0F)) {
-    y_pos_min = 0;
-    if (potential_y >= MAX_POTENTIAL_X) {
-      return;
-    }
-  } else if (y_pos >= y_max && (map_->y == static_cast<float>(this->map_->y_max_ - this->frame_config_.GetRows()))) {
-    y_pos_max = frame_config_.GetRows() - 1;
-    if (potential_y >= MAX_POTENTIAL_X) {
-      return;
-    }
-  } else {
+  if (map_->y == config::TILE_PER_ROW && ((movement.y + mVelocityY) >= y_max_)) {
+    return;
+  }
+
+  if (map_->x == -(config::TILE_PER_COLUMN) && potential_x < x_min_) {
+    return;
+  }
+
+  if (map_->x == config::TILE_PER_COLUMN && (movement.x + mVelocityX) >= x_max_) {
+    return;
   }
 
   switch (direction) {
     case map::RIGHT :
-      if (x_pos >= x_pos_max) {
+      if (x_pos >= x_max_) {
         movement.MoveSmooth(1, 0, true);
       } else {
         movement.MoveSmooth(1, 0);
@@ -160,7 +149,7 @@ void CharacterPlayer::Tick() {
       animation.Play_animation(8);
       break;
     case map::LEFT:
-      if (x_pos <= x_pos_min) {
+      if (x_pos <= x_min_) {
         movement.MoveSmooth(-1, 0, true);
       } else {
         movement.MoveSmooth(-1, 0);
@@ -169,7 +158,7 @@ void CharacterPlayer::Tick() {
       animation.Play_animation(4);
       break;
     case map::DOWN:
-      if (y_pos >= y_pos_max) {
+      if (y_pos >= y_max_) {
         movement.MoveSmooth(0, 1, true);
       } else {
         movement.MoveSmooth(0, 1);
@@ -178,7 +167,7 @@ void CharacterPlayer::Tick() {
       animation.Play_animation(0);
       break;
     case map::UP:
-      if (y_pos <= y_pos_min) {
+      if (y_pos <= y_min_) {
         movement.MoveSmooth(0, -1, true);
       } else {
         movement.MoveSmooth(0, -1);
@@ -187,6 +176,13 @@ void CharacterPlayer::Tick() {
       animation.Play_animation(12);
       break;
   }
+
+  x_pos_min_ = x_min_;
+  x_pos_max_ = x_max_;
+  y_pos_min_ = y_min_;
+  y_pos_max_ = y_max_;
+
+  printf("Position: X: %d, Y: %d\n", potential_x, potential_y);
 }
 
 void CharacterPlayer::Render() {
@@ -201,7 +197,7 @@ void CharacterPlayer::Render() {
 
   Texture::Render(
       *sdl::renderer,
-      texture,
+      texture_,
       animation.current_frame,
       static_cast<int>(PLAYER_X),
       static_cast<int>(PLAYER_Y - OFFSET_Y)
@@ -210,10 +206,10 @@ void CharacterPlayer::Render() {
   // Player box
   if (player::draw_bounds) {
     auto player_box = SDL_Rect{
-        (x_pos_min * frame_config_.GetTileDimension()) + offset_x,
-        (y_pos_min * frame_config_.GetTileDimension()) + offset_y,
-        ((x_pos_max - x_pos_min) * frame_config_.GetTileDimension()) + frame_config_.GetTileDimension(),
-        ((y_pos_max - y_pos_min) * frame_config_.GetTileDimension()) + frame_config_.GetTileDimension()
+        (x_pos_min_ * frame_config_.GetTileDimension()) + offset_x,
+        (y_pos_min_ * frame_config_.GetTileDimension()) + offset_y,
+        ((x_pos_max_ - x_pos_min_) * frame_config_.GetTileDimension()) + frame_config_.GetTileDimension(),
+        ((y_pos_max_ - y_pos_min_) * frame_config_.GetTileDimension()) + frame_config_.GetTileDimension()
     };
     auto player_character_box = SDL_Rect{
         static_cast<int>(PLAYER_X),
