@@ -5,11 +5,11 @@ namespace player {
   bool is_visible = false;
   bool draw_bounds = true;
 
-  constexpr float BASE_ANIMATION_SPEED = 11;
-  constexpr float BASE_MOVEMENT_SPEED = 3;
-  constexpr float RUNNING_SPEED = 1.8;
-  constexpr float RUN_ANIMATION_SPEED = BASE_ANIMATION_SPEED * RUNNING_SPEED;
-  constexpr float RUN_MOVEMENT_SPEED = BASE_MOVEMENT_SPEED * RUNNING_SPEED;
+  float BASE_MOVEMENT_SPEED = 3.5F;
+  float BASE_ANIMATION_SPEED = BASE_MOVEMENT_SPEED * 4.0F;
+  float RUNNING_SPEED = 2.0F;
+  float RUN_ANIMATION_SPEED = BASE_ANIMATION_SPEED * RUNNING_SPEED;
+  float RUN_MOVEMENT_SPEED = BASE_MOVEMENT_SPEED * RUNNING_SPEED;
 }
 
 CharacterPlayer::~CharacterPlayer() = default;
