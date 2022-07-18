@@ -133,7 +133,7 @@ namespace map {
     map_data::TilePattern tile_pattern_2(11, 0, 0, 11);
     map_data::TilePattern tile_pattern_3(2);
     map_data::TilePattern tile_pattern_4(8);
-    map_data::TilePattern tile_pattern_5(2);
+    map_data::TilePattern tile_pattern_5(1);
 
     map_data_list[MapIndex::ACTIVE] = map_data::MapData("tile.png", tile_pattern_1);
     map_data_list[MapIndex::RIGHT_CONNECTION] = map_data::MapData("tile.png", tile_pattern_2);
@@ -231,19 +231,22 @@ namespace map {
       }
     }
 
-    auto start_y = 0;
+    auto gap_top = 0;
+    auto gap_bottom = 0;
     auto active_h = 0;
     if (y < 0) {
-      start_y = (y * -1);
-      y = start_y;
-      h -= start_y;
+      gap_top = (y * -1);
+      y = gap_top;
+      h -= gap_top;
       active_h = h;
+    } else {
+      gap_bottom = y;
     }
 
-    auto gapL = x;
-    auto gapR = frame_config_.GetWidth() - w;
-    if (gapL > 0) {
-      gapR = 0;
+    auto gap_left = x;
+    auto gap_right = frame_config_.GetWidth() - w;
+    if (gap_left > 0) {
+      gap_right = 0;
     }
 
     auto direction = map::direction;
@@ -251,26 +254,43 @@ namespace map {
     int pole = map::pole;
 
     switch (direction_moving) {
-      case UP:
-        draw_from_bottom = false;
+      case UP:draw_from_bottom = (gap_bottom > 0);
         break;
-      case DOWN:
-        draw_from_bottom = true;
+      case DOWN:draw_from_bottom = (gap_top == 0);
         break;
-      case LEFT:
-        draw_from_bottom = (start_x == 0);
+      case LEFT:draw_from_bottom = (start_x == 0);
         break;
-      case RIGHT:
-        draw_from_bottom = (gapR > 0);
+      case RIGHT:draw_from_bottom = (gap_right > 0);
         break;
     }
 
-    RenderActive(x, y, w, h, draw_from_bottom);
+    auto active_x_placement = x;
+    auto active_y_placement = y;
 
-    if (gapL > 0) {
+    if (gap_top > 0) {
+      if (pole == -1) {
+        RenderTop(x, 0, w, y, true);
+      } else {
+        RenderTop(x, 0, w, y, draw_from_bottom);
+      }
+      //todo: draw left and right border maps.
+    } else {
+      if (gap_bottom > 0) {
+        y = frame_config_.GetHeight() - gap_bottom;
+        RenderBottom(x, y, w, gap_bottom, (gap_right > 0));
+        active_y_placement = 0;
+        h -= gap_bottom;
+      } else {
+
+      }
+    }
+
+    RenderActive(active_x_placement, active_y_placement, w, h, draw_from_bottom);
+
+    if (gap_left > 0) {
       x = 0;
-      y = start_y;
-      w = gapL;
+      y = gap_top;
+      w = gap_left;
 
       if (pole == -1) {
         RenderLeft(x, y, w, h, false);
@@ -278,9 +298,9 @@ namespace map {
         RenderLeft(x, y, w, h, true);
       }
     } else {
-      if (gapR > 0) {
+      if (gap_right > 0) {
         x = w;
-        w = gapR;
+        w = gap_right;
         RenderRight(x, y, w, h, false);
       }
     }
