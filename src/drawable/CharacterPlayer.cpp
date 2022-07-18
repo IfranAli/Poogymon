@@ -44,19 +44,19 @@ void CharacterPlayer::CalculateBoundingBox() {
   x_min_ = (frame_config_.GetCols() / 2) - (mov_boundary_x_ / 2);
   x_max_ = x_min_ + mov_boundary_x_;
 
-  if (map_->y == 0) {
-    y_min_ = 0;
+  if (map_->y_ == -(config::TILE_PER_ROW)) {
+    y_min_ = -(config::TILE_PER_ROW);
   }
 
-  if (map_->y == config::TILE_PER_ROW) {
+  if (map_->y_ == config::TILE_PER_ROW) {
     y_max_ = config::TILE_PER_ROW;
   }
 
-  if (map_->x == -(config::TILE_PER_COLUMN)) {
+  if (map_->x_ == -(config::TILE_PER_COLUMN)) {
     x_min_ = -(config::TILE_PER_COLUMN);
   }
 
-  if (map_->x == config::TILE_PER_COLUMN) {
+  if (map_->x_ == config::TILE_PER_COLUMN) {
     x_max_ = config::TILE_PER_COLUMN;
   }
 }
@@ -122,19 +122,19 @@ void CharacterPlayer::Tick() {
 
   CalculateBoundingBox();
 
-  if (map_->y == -(config::TILE_PER_ROW) && potential_y < y_min_) {
+  if (map_->y_ == -(config::TILE_PER_ROW) && potential_y < y_min_) {
     return;
   }
 
-  if (map_->y == config::TILE_PER_ROW && ((movement.y + mVelocityY) >= y_max_)) {
+  if (map_->y_ == config::TILE_PER_ROW && ((movement.y + mVelocityY) >= y_max_)) {
     return;
   }
 
-  if (map_->x == -(config::TILE_PER_COLUMN) && potential_x < x_min_) {
+  if (map_->x_ == -(config::TILE_PER_COLUMN) && potential_x < x_min_) {
     return;
   }
 
-  if (map_->x == config::TILE_PER_COLUMN && (movement.x + mVelocityX) >= x_max_) {
+  if (map_->x_ == config::TILE_PER_COLUMN && (movement.x + mVelocityX) >= x_max_) {
     return;
   }
 
@@ -176,6 +176,8 @@ void CharacterPlayer::Tick() {
       animation.Play_animation(12);
       break;
   }
+
+  map::direction_moving = direction;
 
   x_pos_min_ = x_min_;
   x_pos_max_ = x_max_;

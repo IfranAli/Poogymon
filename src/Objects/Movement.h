@@ -8,7 +8,12 @@ class Movement {
 
 	void MoveSmooth(int vx, int vy, bool move_camera = false);
 
-	int pole {0}; // -1 = UP, LEFT
+    /**
+     * 0    : NONE
+     * 1    : LEFT, RIGHT
+     * -1   : UP, DOWN
+     */
+	int pole {0};
 
 	int direction {0};
 	bool moving {0};

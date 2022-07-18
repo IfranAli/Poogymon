@@ -6,19 +6,6 @@
 #include "Objects/FrameConfig.h"
 
 namespace map {
-  class Map;
-  constexpr float transition_speed_default = 10;
-  extern Map *active_map;
-  extern int pole; // -1 = UP, LEFT
-  extern int direction;
-  extern bool moving;
-  extern float target;
-  extern float *axis;
-  extern float speed;
-
-  void MoveSmooth(int vx, int vy, bool move_camera);
-  void MoveSmoothStep();
-
   enum MapIndex : int {
     ACTIVE = 0,
     LEFT_CONNECTION = 1,
@@ -33,6 +20,20 @@ namespace map {
     LEFT,
     RIGHT,
   };
+
+  class Map;
+  constexpr float transition_speed_default = 10;
+  extern Map *active_map;
+  extern int pole; // -1 = UP, LEFT
+  extern int direction;
+  extern Direction direction_moving;
+  extern bool moving;
+  extern float target;
+  extern float *axis;
+  extern float speed;
+
+  void MoveSmooth(int vx, int vy, bool move_camera);
+  void MoveSmoothStep();
 
   struct MapMetaData {
     std::string filename{};
@@ -73,8 +74,8 @@ namespace map {
     void AddMapData(map_data::MapData &map_data);
     void RenderToScreen(bool recalculate = false) const;
 
-    float x = 0.0;
-    float y = 0.0;
+    float x_ = 0.0;
+    float y_ = 0.0;
 
     int total_width_ = 0;
     int total_height_ = 0;
@@ -88,6 +89,14 @@ namespace map {
     map_data::TilePattern border_tile_pattern_ = map_data::TilePattern(4, 5, 12, 13);
     map_data::MapData border_map_ = map_data::MapData("tile.png", border_tile_pattern_);
     bool show_tile_set_ = true;
+
+    void RenderActive(float x, float y, int w, int h, bool) const;
+    void RenderLeft(float x, float y, int w, int h, bool) const;
+    void RenderRight(float x, float y, int w, int h, bool) const;
+    void RenderBottom(float x, float y, int w, int h, bool) const;
+    void RenderTop(float x, float y, int w, int h, bool) const;
+    void RenderBorders() const;
+
   };
 
 } /* map */

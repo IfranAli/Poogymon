@@ -16,9 +16,10 @@ void Movement::MoveSmooth(int vx, int vy, bool move_camera) {
   bool moving_x_axis = vx != 0;
   map::direction = (moving_x_axis ? vx : vy);
   pole = (moving_x_axis ? 1 : -1);
+  map::pole = pole;
 
   if (move_camera) {
-    axis = (moving_x_axis ? &map::active_map->x : &map::active_map->y);
+    axis = (moving_x_axis ? &map::active_map->x_ : &map::active_map->y_);
   } else {
     axis = (moving_x_axis ? &x : &y);
   }
@@ -27,6 +28,7 @@ void Movement::MoveSmooth(int vx, int vy, bool move_camera) {
   target = *axis + (d);
   *axis += (d * speed) * sdl::deltatime;
   moving = true;
+  map::moving = true;
 }
 
 void Movement::Tick() {
@@ -40,6 +42,8 @@ void Movement::Step() {
   if ((d > 0.0 && *axis > target) || (d < 0.0 && *axis < target)) {
     *axis = target;
     moving = false;
+    map::moving = false;
+    map::pole = 0;
 //    map::active_map->active->DrawMap(x, y);
   }
 }
