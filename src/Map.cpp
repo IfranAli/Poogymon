@@ -130,7 +130,7 @@ namespace map {
 
   Map::Map(FrameConfig &frame_config) : frame_config_(frame_config) {
     map_data::TilePattern tile_pattern_1(0);
-    map_data::TilePattern tile_pattern_2(11, 0, 0, 11);
+    map_data::TilePattern tile_pattern_2(2, 2, 1, 1);
     map_data::TilePattern tile_pattern_3(2);
     map_data::TilePattern tile_pattern_4(8);
     map_data::TilePattern tile_pattern_5(1);
@@ -273,7 +273,6 @@ namespace map {
       } else {
         RenderTop(x, 0, w, y, draw_from_bottom);
       }
-      //todo: draw left and right border maps.
     } else {
       if (gap_bottom > 0) {
         y = frame_config_.GetHeight() - gap_bottom;
@@ -292,16 +291,23 @@ namespace map {
       y = gap_top;
       w = gap_left;
 
-      if (pole == -1) {
-        RenderLeft(x, y, w, h, false);
+      if (gap_bottom > 0) {
+        RenderLeft(x, y, w, h, true, true);
       } else {
-        RenderLeft(x, y, w, h, true);
+        RenderLeft(x, y, w, h, true, false);
       }
+
     } else {
       if (gap_right > 0) {
         x = w;
         w = gap_right;
-        RenderRight(x, y, w, h, false);
+
+        if (gap_bottom > 0) {
+          y = 0;
+          RenderRight(x, y, w, h, false, true);
+        } else {
+          RenderRight(x, y, w, h, false, false);
+        }
       }
     }
   }
@@ -386,7 +392,7 @@ namespace map {
         &dest
     );
   }
-  void Map::RenderLeft(float x, float y, int w, int h, bool draw_from_bottom = false) const {
+  void Map::RenderLeft(float x, float y, int w, int h, bool draw_from_bottom = false, bool draw_from_top = false) const {
     SDL_Rect src;
     src.x = 0;
     src.y = 0;
@@ -395,6 +401,9 @@ namespace map {
 
     if (draw_from_bottom) {
       src.x = frame_config_.GetWidth() - w;
+    }
+
+    if (draw_from_top) {
       src.y = frame_config_.GetHeight() - h;
     }
 
@@ -419,7 +428,7 @@ namespace map {
     }
   }
 
-  void Map::RenderRight(float x, float y, int w, int h, bool draw_from_bottom = false) const {
+  void Map::RenderRight(float x, float y, int w, int h, bool draw_from_bottom = false, bool draw_from_top = false) const {
     SDL_Rect src;
     src.x = 0;
     src.y = 0;
@@ -428,6 +437,9 @@ namespace map {
 
     if (draw_from_bottom) {
       src.x = frame_config_.GetWidth() - w;
+    }
+
+    if (draw_from_top) {
       src.y = frame_config_.GetHeight() - h;
     }
 

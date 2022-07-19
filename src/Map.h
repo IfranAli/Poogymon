@@ -91,8 +91,8 @@ namespace map {
     bool show_tile_set_ = true;
 
     void RenderActive(float x, float y, int w, int h, bool) const;
-    void RenderLeft(float x, float y, int w, int h, bool) const;
-    void RenderRight(float x, float y, int w, int h, bool) const;
+    void RenderLeft(float x, float y, int w, int h, bool, bool) const;
+    void RenderRight(float x, float y, int w, int h, bool, bool) const;
     void RenderBottom(float x, float y, int w, int h, bool) const;
     void RenderTop(float x, float y, int w, int h, bool) const;
     void RenderBorders() const;
