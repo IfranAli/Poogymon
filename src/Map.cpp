@@ -214,78 +214,73 @@ namespace map {
     auto w = frame_config_.GetWidth();
     auto h = frame_config_.GetHeight();
 
-    auto start_x = 0;
-    auto active_w = 0;
-    auto draw_from_bottom = false;
-    auto draw_from_bottom_active = false;
     if (x < 0) {
-      start_x = (x * -1);
-      x = start_x;
-      w -= start_x;
-      active_w = w;
+      x = (x * -1);
+      w -= x;
     } else {
       if (x > 0) {
-        draw_from_bottom = true;
         w -= x;
         x = 0;
       }
     }
 
+    auto gap_left = x;
+    auto gap_right = frame_config_.GetWidth() - w;
     auto gap_top = 0;
     auto gap_bottom = 0;
-    auto active_h = 0;
+
     if (y < 0) {
       gap_top = (y * -1);
       y = gap_top;
       h -= gap_top;
-      active_h = h;
     } else {
       gap_bottom = y;
     }
 
-    auto gap_left = x;
-    auto gap_right = frame_config_.GetWidth() - w;
     if (gap_left > 0) {
       gap_right = 0;
     }
 
-    auto direction = map::direction;
-    auto direction_moving = map::direction_moving;
-    int pole = map::pole;
-
-    switch (direction_moving) {
-      case UP:draw_from_bottom = (gap_bottom > 0);
-        break;
-      case DOWN:draw_from_bottom = (gap_top == 0);
-        break;
-      case LEFT:draw_from_bottom = (start_x == 0);
-        break;
-      case RIGHT:draw_from_bottom = (gap_right > 0);
-        break;
-    }
-
-    auto active_x_placement = x;
-    auto active_y_placement = y;
-
     if (gap_top > 0) {
-      if (pole == -1) {
-        RenderTop(x, 0, w, y, true);
+      if (gap_left > 0) {
+        RenderTop(x, 0, w, y, false, true);
+        RenderActive(x, y, w, h, false, false);
+        RenderBorder(0, 0, gap_left, gap_top, true, true);
+
       } else {
-        RenderTop(x, 0, w, y, draw_from_bottom);
+        RenderTop(x, 0, w, y, true, true);
+        RenderActive(x, y, w, h, true, false);
+
+        if (gap_right > 0) {
+          RenderBorder(w, 0, gap_right, gap_top, false, true);
+        }
       }
+
     } else {
       if (gap_bottom > 0) {
-        y = frame_config_.GetHeight() - gap_bottom;
-        RenderBottom(x, y, w, gap_bottom, (gap_right > 0));
-        active_y_placement = 0;
         h -= gap_bottom;
-      } else {
+        if (gap_right > 0) {
+          RenderBottom(0, h, w, gap_bottom, true, false);
+          RenderActive(x, 0, w, h, true, true);
+          RenderBorder(w, h, gap_right, gap_bottom, false, false);
+        } else {
+          RenderBottom(x, h, w, gap_bottom, false, false);
+          RenderActive(x, 0, w, h, false, true);
 
+          if (gap_left > 0) {
+            RenderBorder(0, h, gap_left, gap_bottom, true, false);
+          }
+        }
+      } else {
+        if (gap_right > 0) {
+          RenderActive(x, y, w, h, true, true);
+        } else {
+          RenderActive(x, y, w, h, false, false);
+        }
       }
     }
 
-    RenderActive(active_x_placement, active_y_placement, w, h, draw_from_bottom);
-
+    h = frame_config_.GetHeight() - gap_bottom;
     if (gap_left > 0) {
       x = 0;
       y = gap_top;
@@ -366,7 +361,13 @@ namespace map {
 
     return map_names;
   }
-  void Map::RenderActive(float x, float y, int w, int h, bool draw_from_bottom = false) const {
+
+  void Map::RenderActive(float x,
+                         float y,
+                         int w,
+                         int h,
+                         bool draw_from_bottom = false,
+                         bool draw_from_top = false) const {
     // Render centre map.
     SDL_Rect src;
 
@@ -375,6 +376,9 @@ namespace map {
 
     if (draw_from_bottom) {
       src.x = frame_config_.GetWidth() - w;
+    }
+
+    if (draw_from_top) {
       src.y = frame_config_.GetHeight() - h;
     }
 
@@ -392,7 +396,12 @@ namespace map {
         &dest
     );
   }
-  void Map::RenderLeft(float x, float y, int w, int h, bool draw_from_bottom = false, bool draw_from_top = false) const {
+  void Map::RenderLeft(float x,
+                       float y,
+                       int w,
+                       int h,
+                       bool draw_from_bottom = false,
+                       bool draw_from_top = false) const {
     SDL_Rect src;
     src.x = 0;
     src.y = 0;
@@ -428,7 +437,12 @@ namespace map {
     }
   }
 
-  void Map::RenderRight(float x, float y, int w, int h, bool draw_from_bottom = false, bool draw_from_top = false) const {
+  void Map::RenderRight(float x,
+                        float y,
+                        int w,
+                        int h,
+                        bool draw_from_bottom = false,
+                        bool draw_from_top = false) const {
     SDL_Rect src;
     src.x = 0;
     src.y = 0;
@@ -463,14 +477,22 @@ namespace map {
       );
     }
   }
-  void Map::RenderBottom(float x, float y, int w, int h, bool draw_from_bottom = false) const {
+  void Map::RenderBottom(float x,
+                         float y,
+                         int w,
+                         int h,
+                         bool draw_from_bottom = false,
+                         bool draw_from_top = false) const {
     SDL_Rect src = {0, 0, 0, 0};
     src.x = 0;
     src.y = 0;
 
     if (draw_from_bottom) {
       src.x = frame_config_.GetWidth() - w;
-      src.h = frame_config_.GetHeight() - h;
+    }
+
+    if (draw_from_top) {
+      src.y = frame_config_.GetHeight() - h;
     }
 
     src.w = w;
@@ -497,14 +519,16 @@ namespace map {
     }
   }
 
-  void Map::RenderTop(float x, float y, int w, int h, bool draw_from_bottom = false) const {
-    // Render Top map.
+  void Map::RenderTop(float x, float y, int w, int h, bool draw_from_bottom = false, bool draw_from_top = false) const {
     SDL_Rect src = {0, 0, 0, 0};
     src.x = 0;
     src.y = 0;
 
     if (draw_from_bottom) {
       src.x = frame_config_.GetWidth() - w;
+    }
+
+    if (draw_from_top) {
       src.y = frame_config_.GetHeight() - h;
     }
 
@@ -523,44 +547,37 @@ namespace map {
     );
   }
 
-  void Map::RenderBorders() const {
-//    // Render border map for bottom right.
-//    if (offset_x_end > 0 && offset_y_end > 0) {
-//      SDL_Rect src;
-//      src.x = 0;
-//      src.y = 0;
-//      src.w = offset_x_end;
-//      src.h = offset_y_end;
-//
-//      SDL_Rect dest = src;
-//      dest.x = screen_start_x + (screen_w - offset_x_end);
-//      dest.y = screen_start_y + (screen_h - offset_y_end);
-//      SDL_RenderCopy(
-//          sdl::renderer,
-//          border_map_.map_texture_.mTexture,
-//          &src,
-//          &dest
-//      );
-//    }
-//
-//    // Render border map for bottom left.
-//    if (offset_x_start > 0 && offset_y_end > 0) {
-//      SDL_Rect src;
-//      src.x = screen_w - offset_x_start;
-//      src.y = 0;
-//      src.w = offset_x_start;
-//      src.h = offset_y_end;
-//
-//      SDL_Rect dest = src;
-//      dest.x = 0;
-//      dest.y = screen_start_y + (screen_h - offset_y_end);
-//
-//      SDL_RenderCopy(
-//          sdl::renderer,
-//          border_map_.map_texture_.mTexture,
-//          &src,
-//          &dest
-//      );
-//    }
+  void Map::RenderBorder(float x,
+                         float y,
+                         int w,
+                         int h,
+                         bool draw_from_bottom = false,
+                         bool draw_from_top = false) const {
+    SDL_Rect src = {0, 0, 0, 0};
+    src.x = 0;
+    src.y = 0;
+
+    if (draw_from_bottom) {
+      src.x = frame_config_.GetWidth() - w;
+    }
+
+    if (draw_from_top) {
+      src.y = frame_config_.GetHeight() - h;
+    }
+
+    src.w = w;
+    src.h = h;
+
+    SDL_Rect dest = src;
+    dest.x = frame_config_.GetOffsetX() + x;
+    dest.y = frame_config_.GetOffsetY() + y;
+
+    SDL_RenderCopy(
+        sdl::renderer,
+        border_map_.map_texture_.mTexture,
+        &src,
+        &dest
+    );
   }
+
 } /*namespace map_ */
