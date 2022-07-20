@@ -8,15 +8,10 @@
 #include <utility>
 
 namespace map {
-  int pole{0}; // -1 = UP, LEFT
   int direction = 0;
-  Direction direction_moving = UP;
   bool moving{false};
-  float target{0};
-  float *axis{nullptr};
   float x;
   float y;
-  float speed{transition_speed_default};
   Map *active_map;
 
   auto index_to_enum = [](int index = 0) -> MapIndex {
@@ -57,18 +52,46 @@ namespace map {
 
     return list;
   }
+}
+
+namespace map {
+  Map::Map(FrameConfig &frame_config) : frame_config_(frame_config) {
+    map_data::TilePattern tile_pattern_1(0);
+    map_data::TilePattern tile_pattern_2(2, 2, 1, 1);
+    map_data::TilePattern tile_pattern_3(2);
+    map_data::TilePattern tile_pattern_4(8);
+    map_data::TilePattern tile_pattern_5(1);
+
+    map_data_list_[MapIndex::ACTIVE] = map_data::MapData("tile.png", tile_pattern_1);
+    map_data_list_[MapIndex::RIGHT_CONNECTION] = map_data::MapData("tile.png", tile_pattern_2);
+    map_data_list_[MapIndex::LEFT_CONNECTION] = map_data::MapData("tile.png", tile_pattern_3);
+    map_data_list_[MapIndex::BOTTOM_CONNECTION] = map_data::MapData("tile.png", tile_pattern_4);
+    map_data_list_[MapIndex::TOP_CONNECTION] = map_data::MapData("tile.png", tile_pattern_5);
+
+    map_data_list_[ACTIVE].connections_.Right = &map_data_list_[RIGHT_CONNECTION];
+    map_data_list_[ACTIVE].connections_.Left = &map_data_list_[LEFT_CONNECTION];
+    map_data_list_[ACTIVE].connections_.Down = &map_data_list_[BOTTOM_CONNECTION];
+    map_data_list_[ACTIVE].connections_.Up = &map_data_list_[TOP_CONNECTION];
+
+    AddMapData(map_data_list_[ACTIVE]);
+    moving = false;
+  }
+
+  Map::~Map() {
+    printf("MAP -dtor\n");
+  }
 
   map_data::MapData &Map::GetConnection(MapIndex type) {
     switch (type) {
-      case ACTIVE:return map_data_list[ACTIVE];
+      case ACTIVE:return map_data_list_[ACTIVE];
         break;
-      case LEFT_CONNECTION:return *map_data_list[MapIndex::ACTIVE].connections_.Left;
+      case LEFT_CONNECTION:return *map_data_list_[MapIndex::ACTIVE].connections_.Left;
         break;
-      case RIGHT_CONNECTION:return *map_data_list[MapIndex::ACTIVE].connections_.Right;
+      case RIGHT_CONNECTION:return *map_data_list_[MapIndex::ACTIVE].connections_.Right;
         break;
-      case TOP_CONNECTION:return *map_data_list[MapIndex::ACTIVE].connections_.Up;
+      case TOP_CONNECTION:return *map_data_list_[MapIndex::ACTIVE].connections_.Up;
         break;
-      case BOTTOM_CONNECTION:return *map_data_list[MapIndex::ACTIVE].connections_.Down;
+      case BOTTOM_CONNECTION:return *map_data_list_[MapIndex::ACTIVE].connections_.Down;
         break;
     }
   }
@@ -100,66 +123,8 @@ namespace map {
     }
   }
 
-  void MoveSmooth(int vx, int vy, bool move_camera) {
-    if (moving)
-      return;
-
-    direction = (vx ? vx : vy);
-    pole = (vx ? 1 : -1);
-
-    if (move_camera) {
-      axis = (vx ? &map::active_map->x_ : &map::active_map->y_);
-    } else {
-      axis = (vx ? &x : &y);
-    }
-
-    target = *axis + (direction);
-    *axis += (direction * speed) * sdl::deltatime;
-    moving = true;
-  }
-
-  void MoveSmoothStep() {
-    *axis += (direction * speed) * sdl::deltatime;
-    if ((direction > 0 && *axis > target) || (direction < 0 && *axis < target)) {
-      *axis = target;
-      moving = false;
-
-//      active_map->active->DrawMap(x, y);
-    }
-  }
-
-  Map::Map(FrameConfig &frame_config) : frame_config_(frame_config) {
-    map_data::TilePattern tile_pattern_1(0);
-    map_data::TilePattern tile_pattern_2(2, 2, 1, 1);
-    map_data::TilePattern tile_pattern_3(2);
-    map_data::TilePattern tile_pattern_4(8);
-    map_data::TilePattern tile_pattern_5(1);
-
-    map_data_list[MapIndex::ACTIVE] = map_data::MapData("tile.png", tile_pattern_1);
-    map_data_list[MapIndex::RIGHT_CONNECTION] = map_data::MapData("tile.png", tile_pattern_2);
-    map_data_list[MapIndex::LEFT_CONNECTION] = map_data::MapData("tile.png", tile_pattern_3);
-    map_data_list[MapIndex::BOTTOM_CONNECTION] = map_data::MapData("tile.png", tile_pattern_4);
-    map_data_list[MapIndex::TOP_CONNECTION] = map_data::MapData("tile.png", tile_pattern_5);
-
-    map_data_list[ACTIVE].connections_.Right = &map_data_list[RIGHT_CONNECTION];
-    map_data_list[ACTIVE].connections_.Left = &map_data_list[LEFT_CONNECTION];
-    map_data_list[ACTIVE].connections_.Down = &map_data_list[BOTTOM_CONNECTION];
-    map_data_list[ACTIVE].connections_.Up = &map_data_list[TOP_CONNECTION];
-
-    AddMapData(map_data_list[ACTIVE]);
-    moving = false;
-  }
-
-  Map::~Map() {
-    printf("MAP -dtor\n");
-  }
-
-  Map &Map::operator=(Map &&t) noexcept {
-    return *this;
-  }
-
   bool Map::HasConnection(MapIndex type) {
-    return map_data_list[type].IsValidMap();
+    return map_data_list_[type].IsValidMap();
   }
 
   void Map::Tick() const {
@@ -170,29 +135,29 @@ namespace map {
   }
 
   void Map::AddMapData(map_data::MapData &mapdata) {
-    active = &mapdata;
+    active_ = &mapdata;
     this->total_width_ += mapdata.GetMapWidth();
     this->total_height_ += mapdata.GetMapHeight();
     this->x_max_ += total_width_;
     this->y_max_ += total_height_;
 
-    if (active->connections_.Right != nullptr) {
-      auto width = active->connections_.Right->GetMapWidth();
+    if (active_->connections_.Right != nullptr) {
+      auto width = active_->connections_.Right->GetMapWidth();
       this->total_width_ += width;
       this->x_max_ += width;
     }
-    if (active->connections_.Left != nullptr) {
-      auto width = active->connections_.Left->GetMapWidth();
+    if (active_->connections_.Left != nullptr) {
+      auto width = active_->connections_.Left->GetMapWidth();
       this->total_width_ += width;
       this->x_min_ -= width;
     }
-    if (active->connections_.Up != nullptr) {
-      auto width = active->connections_.Up->GetMapWidth();
+    if (active_->connections_.Up != nullptr) {
+      auto width = active_->connections_.Up->GetMapWidth();
       this->total_height_ += width;
       this->y_min_ -= width;
     }
-    if (active->connections_.Down != nullptr) {
-      auto height = active->connections_.Down->GetMapHeight();
+    if (active_->connections_.Down != nullptr) {
+      auto height = active_->connections_.Down->GetMapHeight();
       this->total_height_ += height;
       this->y_max_ += height;
     }
@@ -205,7 +170,7 @@ namespace map {
   int Map::GetY() const { return y_; }
 
   void Map::RenderToScreen(bool recalculate) const {
-    if (active == nullptr) {
+    if (active_ == nullptr) {
       return;
     }
 
@@ -322,7 +287,7 @@ namespace map {
 //    }
 //
 //    printf("TILE GET X:%d, Y:%d\n", mx, my);
-//    return active->GetTile(mx, my);
+//    return active_->GetTile(mx, my);
   }
 
   void Map::SetTile(int mx, int my, int tile) const {
@@ -335,25 +300,25 @@ namespace map {
       printf("Invalid Mouse X:%d, Y:%d\n", mx, my);
     }
 
-    active->SetTile(mx, my, tile);
+    active_->SetTile(mx, my, tile);
   }
 
   void Map::SaveMap(size_t index) {
-    map_data_list[index].SaveMap();
+    map_data_list_[index].SaveMap();
   }
 
   void Map::LoadMap(size_t index) {
-    map_data_list[index].LoadMap();
+    map_data_list_[index].LoadMap();
   }
 
   void Map::PrintMap(size_t index) {
-    map_data_list[index].PrintMap();
+    map_data_list_[index].PrintMap();
   }
 
   std::vector<std::string> Map::GetMapConnections() const {
     std::vector<std::string> map_names{};
 
-    for (auto &map_data: map_data_list) {
+    for (auto &map_data: map_data_list_) {
       if (!map_data.filename_.empty()) {
         map_names.push_back(map_data.filename_);
       }
@@ -391,7 +356,7 @@ namespace map {
 
     SDL_RenderCopy(
         sdl::renderer,
-        map::active_map->active->map_texture_.mTexture,
+        map::active_map->active_->map_texture_.mTexture,
         &src,
         &dest
     );
@@ -423,7 +388,7 @@ namespace map {
     if (active_map->HasConnection(LEFT_CONNECTION)) {
       SDL_RenderCopy(
           sdl::renderer,
-          active_map->active->connections_.Left->map_texture_.mTexture,
+          active_map->active_->connections_.Left->map_texture_.mTexture,
           &src,
           &dest
       );
@@ -464,7 +429,7 @@ namespace map {
     if (active_map->HasConnection(RIGHT_CONNECTION)) {
       SDL_RenderCopy(
           sdl::renderer,
-          active_map->active->connections_.Right->map_texture_.mTexture,
+          active_map->active_->connections_.Right->map_texture_.mTexture,
           &src,
           &dest
       );
@@ -505,7 +470,7 @@ namespace map {
     if (active_map->HasConnection(BOTTOM_CONNECTION)) {
       SDL_RenderCopy(
           sdl::renderer,
-          active_map->active->connections_.Down->map_texture_.mTexture,
+          active_map->active_->connections_.Down->map_texture_.mTexture,
           &src,
           &dest
       );
@@ -541,7 +506,7 @@ namespace map {
 
     SDL_RenderCopy(
         sdl::renderer,
-        active_map->active->connections_.Up->map_texture_.mTexture,
+        active_map->active_->connections_.Up->map_texture_.mTexture,
         &src,
         &dest
     );
@@ -578,6 +543,9 @@ namespace map {
         &src,
         &dest
     );
+  }
+  map_data::MapData &Map::GetActiveMapData() {
+    return (this->active_ == nullptr) ? map_data_list_[ACTIVE] : *active_;
   }
 
 } /*namespace map_ */

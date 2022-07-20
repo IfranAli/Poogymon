@@ -115,7 +115,7 @@ namespace menu {
   void on_enable() {
     puts("Menu enabled");
     if (menus.size() == 0) {
-      puts("No active menus");
+      puts("No active_ menus");
       input::SetPrevHandler();
       return;
     }

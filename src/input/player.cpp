@@ -10,26 +10,26 @@ namespace player {
   CharacterPlayer *character_player = nullptr;
 
   void vy_inc() {
-    character_player->mVelocityY = 1;
+    character_player->velocity_y_ = 1;
   }
   void vy_dec() {
-    character_player->mVelocityY = -1;
+    character_player->velocity_y_ = -1;
   }
   void vx_inc() {
-    character_player->mVelocityX = 1;
+    character_player->velocity_x_ = 1;
   }
   void vx_dec() {
-    character_player->mVelocityX = -1;
+    character_player->velocity_x_ = -1;
   }
 
   void v_clear() {
-    character_player->mVelocityY = 0;
-    character_player->mVelocityX = 0;
-    character_player->is_running = 0;
+    character_player->velocity_y_ = 0;
+    character_player->velocity_x_ = 0;
+    character_player->is_running_ = 0;
   }
 
-  void x_clear() { character_player->mVelocityX = 0; }
-  void y_clear() { character_player->mVelocityY = 0; }
+  void x_clear() { character_player->velocity_x_ = 0; }
+  void y_clear() { character_player->velocity_y_ = 0; }
 
   void on_enable() {
     is_visible = true;
@@ -51,8 +51,8 @@ namespace player {
     debug::open_menu();
   }
 
-  void set_running() { character_player->is_running = true; }
-  void set_walking() { character_player->is_running = false; }
+  void set_running() { character_player->is_running_ = true; }
+  void set_walking() { character_player->is_running_ = false; }
 
   void Init(map::Map *p_map, CharacterPlayer *p_player) {
     map = p_map;

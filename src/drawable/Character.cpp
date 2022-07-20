@@ -2,56 +2,54 @@
 
 #include "Character.h"
 
-
 Character::Character() {
-    mVelocityX = 0;
-    mVelocityY = 0;
-
-	/* Player speed and animation speed */
-	movement.speed = 0.05f;
-	animation.Set_animation_speed(0.20);
+  /* Player speed and animation speed */
+  movement_.speed = default_movement_speed_;
+  animation_.Set_animation_speed(default_animation_speed_);
 }
 
 Character::~Character() = default;
 
+void Character::Tick() {
+  if (animation_.currently_playing) {
+    animation_.Tick();
+  }
 
-void Character::Tick()
-{
-	if (animation.currently_playing) animation.Tick();
+  if (movement_.moving) {
+    movement_.Step();
 
-	if (movement.moving) {
-		movement.Step();
+    // Has movement_ ceased
+    if (!movement_.moving) {
 
-		// Has movement ceased 
-		if (!movement.moving) {
-			// Stop all animations
-			if (animation.currently_playing) animation.Stop_animation();
-			printf("Player X: %f, Y: %f\n", movement.x, movement.y);
-		}
+      // Stop all animations
+      if (animation_.currently_playing) {
+        animation_.Stop_animation();
+      }
 
-	}
-	else if (mVelocityX != 0 || mVelocityY != 0) {
+      printf("Player X: %f, Y: %f\n", movement_.x, movement_.y);
+    }
 
-		movement.MoveSmooth(mVelocityX, mVelocityY);
+  } else if (velocity_x_ != 0 || velocity_y_ != 0) {
 
-		//printf("POLE: %d, Direction: %d\n", movement.pole, movement.direction);
-		if (movement.direction == 1) {
-			if (movement.pole > 0) {
-				printf("Moving RIGHT\n");
-				animation.Play_animation(8);
-			} else {
-				printf("Moving DOWN\n");
-				animation.Play_animation(0);
-			}
-		} else {
-			if (movement.pole > 0) {
-				printf("Moving LEFT\n");
-				animation.Play_animation(4);
-			} else {
-				printf("Moving UP\n");
-				animation.Play_animation(12);
-			}
-		}
-	}
+    movement_.MoveSmooth(velocity_x_, velocity_y_);
+
+    if (movement_.direction == 1) {
+      if (movement_.pole > 0) {
+        puts("Moving RIGHT\n");
+        animation_.Play_animation(8);
+      } else {
+        puts("Moving DOWN\n");
+        animation_.Play_animation(0);
+      }
+    } else {
+      if (movement_.pole > 0) {
+        puts("Moving LEFT\n");
+        animation_.Play_animation(4);
+      } else {
+        puts("Moving UP\n");
+        animation_.Play_animation(12);
+      }
+    }
+  }
 }
 

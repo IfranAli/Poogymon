@@ -6,17 +6,22 @@
 #include "../interfaces/Drawable.h"
 
 class Character : public Drawable {
-public:
+ public:
   Character();
   ~Character();
 
   virtual void Tick();
 
-  bool is_running {false};
-        int mVelocityX;
-        int mVelocityY;
+  bool is_running_ = false;
+  int velocity_x_ = 0;
+  int velocity_y_ = 0;
 
-		Animation animation;
-		Movement movement;
+ protected:
+  Animation animation_;
+  Movement movement_;
+
+ private:
+  const float default_animation_speed_ = 0.20;
+  const float default_movement_speed_ = 0.05F;
 };
 #endif

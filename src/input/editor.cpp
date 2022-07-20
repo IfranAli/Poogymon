@@ -33,7 +33,7 @@ namespace editor {
     auto result = 0;
 
     if (editor::show_tileset && (x < sdl::g_frame_config->GetOffsetX())) {
-      auto &tile_set = map::active_map->active->map_tileset_;
+      auto &tile_set = map::active_map->GetActiveMapData().map_tileset_;
       result = tile_set.GetTile(x, y);
     } else {
       result = map::active_map->GetTileFromMouse(x, y);
@@ -48,13 +48,13 @@ namespace editor {
   void PlaceTile() {
     map::active_map->SetTile(::input::mouse_x, ::input::mouse_y, selected_tile);
     // todo: implement new method to draw maps if they have pending changes.
-    map::active_map->active->DrawMap();
+    map::active_map->GetActiveMapData().DrawMap();
   }
 
   void DrawTileset() {
     if (editor::show_tileset) {
       FrameConfig frame_config;
-      auto &texture = map::active_map->active->map_tileset_.texture;
+      auto &texture = map::active_map->GetActiveMapData().map_tileset_.texture;
 
       SDL_Rect src;
       src.x = src.y = 0;
@@ -70,7 +70,7 @@ namespace editor {
   void OnEnable() {
     editor::show_tileset = true;
     if (editor::show_tileset) {
-      auto tileset_width = map::active_map->active->map_tileset_.texture.mWidth;
+      auto tileset_width = map::active_map->GetActiveMapData().map_tileset_.texture.mWidth;
 
       sdl::g_frame_config->RecalculateWindowVariables(DimensionType{
           .width = sdl::g_frame_config->GetWidth() + tileset_width,
@@ -129,25 +129,25 @@ namespace editor {
 
   void BtnUp() {
     if (::map::active_map->CanMoveUp()) {
-      ::map::MoveSmooth(0, -1, true);
+//      ::map::MoveSmooth(0, -1, true);
     }
   }
 
   void BtnDown() {
     if (::map::active_map->CanMoveDown()) {
-      ::map::MoveSmooth(0, 1, true);
+//      ::map::MoveSmooth(0, 1, true);
     }
   }
 
   void BtnLeft() {
     if (::map::active_map->CanMoveLeft()) {
-      ::map::MoveSmooth(-1, 0, true);
+//      ::map::MoveSmooth(-1, 0, true);
     }
   }
 
   void BtnRight() {
     if (::map::active_map->CanMoveRight()) {
-      ::map::MoveSmooth(1, 0, true);
+//      ::map::MoveSmooth(1, 0, true);
     }
   }
 

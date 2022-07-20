@@ -10,6 +10,10 @@ namespace player {
   float RUNNING_SPEED = 2.0F;
   float RUN_ANIMATION_SPEED = BASE_ANIMATION_SPEED * RUNNING_SPEED;
   float RUN_MOVEMENT_SPEED = BASE_MOVEMENT_SPEED * RUNNING_SPEED;
+
+  const int PLAYER_TEXTURE_WIDTH = 32;
+  const int PLAYER_TEXTURE_HEIGHT = 48;
+
 }
 
 CharacterPlayer::~CharacterPlayer() = default;
@@ -18,7 +22,11 @@ CharacterPlayer::CharacterPlayer(FrameConfig &frame_config, map::Map *map) :
     map_(map),
     frame_config_(frame_config) {
 
-  Texture::LoadFromFile(*sdl::renderer, texture_, texture_path_, 32, 48);
+  Texture::LoadFromFile(*sdl::renderer,
+                        texture_,
+                        texture_path_,
+                        player::PLAYER_TEXTURE_WIDTH,
+                        player::PLAYER_TEXTURE_HEIGHT);
   ResetBoundingBox();
 }
 
@@ -32,10 +40,10 @@ void CharacterPlayer::ResetBoundingBox() {
   y_max_ = y_min_ + mov_boundary_y_;
 
   /* Place character inside bounds */
-  Character::movement.x = static_cast<float>(x_min_);
-  Character::movement.y = static_cast<float>(y_min_);
+  Character::movement_.x = static_cast<float>(x_min_);
+  Character::movement_.y = static_cast<float>(y_min_);
 
-  printf("Player - bounding box update: W:%lu, H:%lu\n", mov_boundary_x_, mov_boundary_y_);
+  printf("Player - bounding box update: W:%d, H:%d\n", mov_boundary_x_, mov_boundary_y_);
 }
 
 void CharacterPlayer::CalculateBoundingBox() {
@@ -63,29 +71,30 @@ void CharacterPlayer::CalculateBoundingBox() {
 
 void CharacterPlayer::Tick() {
   // Step any animations
-  if (animation.currently_playing) {
-    animation.Tick();
+  if (animation_.currently_playing) {
+    animation_.Tick();
 
     // Stop animations if a map transition has completed
-    if (!movement.moving && !map::moving)
-      animation.Stop_animation();
+    if (!movement_.moving) {
+      animation_.Stop_animation();
+    }
   }
 
-  // Do not process movement input until map has completed transition animation
-  if (movement.moving) {
-    movement.Step();
+  // Do not process movement_ input until map has completed transition animation
+  if (movement_.moving) {
+    movement_.Step();
 
-    // Has movement ceased
-    if (!movement.moving) {
+    // Has movement_ ceased
+    if (!movement_.moving) {
       // Stop all animations
-      if (animation.currently_playing)
-        animation.Stop_animation();
+      if (animation_.currently_playing)
+        animation_.Stop_animation();
 
       // This is where world map can be gotten.
-//			int player_world_x = movement.x + map::active_map->GetX();
-//			int player_world_y = movement.y + map::active_map->GetY();
+//			int player_world_x = movement_.x + map::active_map->GetX();
+//			int player_world_y = movement_.y + map::active_map->GetY();
       //printf("Player at (%direction, %direction)\n", player_world_x, player_world_y);
-//			map::active_map->active->SetTile(player_world_x, player_world_y, 11);
+//			map::active_map->GetActiveMapData().SetTile(player_world_x, player_world_y, 11);
     } else {
       return;
     }
@@ -99,26 +108,26 @@ void CharacterPlayer::Tick() {
   // Animation is not playing
 
 
-  if (mVelocityX == 0 && mVelocityY == 0) {
+  if (velocity_x_ == 0 && velocity_y_ == 0) {
     return;
   }
 
   map::Direction direction =
-      (mVelocityX == 0) ? (mVelocityY == 1 ? map::DOWN : map::UP) : (mVelocityX == 1 ? map::RIGHT : map::LEFT);
+      (velocity_x_ == 0) ? (velocity_y_ == 1 ? map::DOWN : map::UP) : (velocity_x_ == 1 ? map::RIGHT : map::LEFT);
 
-  if (is_running) {
-    animation.speed = player::RUN_ANIMATION_SPEED;
-    movement.speed = player::RUN_MOVEMENT_SPEED;
+  if (is_running_) {
+    animation_.speed = player::RUN_ANIMATION_SPEED;
+    movement_.speed = player::RUN_MOVEMENT_SPEED;
   } else {
-    animation.speed = player::BASE_ANIMATION_SPEED;
-    movement.speed = player::BASE_MOVEMENT_SPEED;
+    animation_.speed = player::BASE_ANIMATION_SPEED;
+    movement_.speed = player::BASE_MOVEMENT_SPEED;
   }
 
-  int potential_x = map::active_map->GetX() + movement.x + mVelocityX;
-  int potential_y = map::active_map->GetY() + movement.y + mVelocityY;
+  int potential_x = map_->GetX() + movement_.x + velocity_x_;
+  int potential_y = map_->GetY() + movement_.y + velocity_y_;
 
-  auto x_pos = static_cast<int>(movement.x);
-  auto y_pos = static_cast<int>(movement.y);
+  auto x_pos = static_cast<int>(movement_.x);
+  auto y_pos = static_cast<int>(movement_.y);
 
   CalculateBoundingBox();
 
@@ -126,7 +135,7 @@ void CharacterPlayer::Tick() {
     return;
   }
 
-  if (map_->y_ == config::TILE_PER_ROW && ((movement.y + mVelocityY) >= y_max_)) {
+  if (map_->y_ == config::TILE_PER_ROW && ((movement_.y + velocity_y_) >= y_max_)) {
     return;
   }
 
@@ -134,50 +143,48 @@ void CharacterPlayer::Tick() {
     return;
   }
 
-  if (map_->x_ == config::TILE_PER_COLUMN && (movement.x + mVelocityX) >= x_max_) {
+  if (map_->x_ == config::TILE_PER_COLUMN && (movement_.x + velocity_x_) >= x_max_) {
     return;
   }
 
   switch (direction) {
     case map::RIGHT :
       if (x_pos >= x_max_) {
-        movement.MoveSmooth(1, 0, true);
+        movement_.MoveSmooth(1, 0, true);
       } else {
-        movement.MoveSmooth(1, 0);
+        movement_.MoveSmooth(1, 0);
       }
 
-      animation.Play_animation(8);
+      animation_.Play_animation(8);
       break;
     case map::LEFT:
       if (x_pos <= x_min_) {
-        movement.MoveSmooth(-1, 0, true);
+        movement_.MoveSmooth(-1, 0, true);
       } else {
-        movement.MoveSmooth(-1, 0);
+        movement_.MoveSmooth(-1, 0);
       }
 
-      animation.Play_animation(4);
+      animation_.Play_animation(4);
       break;
     case map::DOWN:
       if (y_pos >= y_max_) {
-        movement.MoveSmooth(0, 1, true);
+        movement_.MoveSmooth(0, 1, true);
       } else {
-        movement.MoveSmooth(0, 1);
+        movement_.MoveSmooth(0, 1);
       }
 
-      animation.Play_animation(0);
+      animation_.Play_animation(0);
       break;
     case map::UP:
       if (y_pos <= y_min_) {
-        movement.MoveSmooth(0, -1, true);
+        movement_.MoveSmooth(0, -1, true);
       } else {
-        movement.MoveSmooth(0, -1);
+        movement_.MoveSmooth(0, -1);
       }
 
-      animation.Play_animation(12);
+      animation_.Play_animation(12);
       break;
   }
-
-  map::direction_moving = direction;
 
   x_pos_min_ = x_min_;
   x_pos_max_ = x_max_;
@@ -193,14 +200,14 @@ void CharacterPlayer::Render() {
   auto offset_y = frame_config_.GetOffsetY();
 
   const auto TILE_DIM = static_cast<float>(this->frame_config_.GetTileDimension());
-  const float PLAYER_X = static_cast<float>(offset_x) + (movement.x * TILE_DIM);
-  const float PLAYER_Y = static_cast<float>(offset_y) + (movement.y * TILE_DIM);
+  const float PLAYER_X = static_cast<float>(offset_x) + (movement_.x * TILE_DIM);
+  const float PLAYER_Y = static_cast<float>(offset_y) + (movement_.y * TILE_DIM);
   const float OFFSET_Y = 20.0F;
 
   Texture::Render(
       *sdl::renderer,
       texture_,
-      animation.current_frame,
+      animation_.current_frame,
       static_cast<int>(PLAYER_X),
       static_cast<int>(PLAYER_Y - OFFSET_Y)
   );
