@@ -4,15 +4,6 @@
 #include <cstdio>
 
 #include "Renderer.h"
-#include "InputContext.h"
-#include "UI/dialog.h"
-#include "UI/menu.h"
-
-#include "Map.h"
-#include "drawable/CharacterPlayer.h"
-
-#include "input/player.h"
-#include "input/editor.h"
 #include "Game.h"
 
 namespace sdl {
@@ -98,29 +89,3 @@ int main() {
   sdl::Cleanup();
   return 0;
 }
-
-namespace render {
-  std::vector<Drawable *> stack{};
-
-  Drawable *AddToRenderStack(Drawable *drawable) {
-    stack.push_back(drawable);
-    (void) puts("added to render stack");
-    return drawable;
-  }
-
-  bool RemoveFromRenderStack(Drawable *p_drawable) {
-    auto found = std::find(std::begin(stack), std::end(stack), p_drawable);
-
-    if (*found) {
-      stack.erase(found);
-    }
-
-    return true;
-  }
-
-  void DrawStack() {
-    for (Drawable *item: stack) {
-      item->Render();
-    }
-  }
-} /* namespace render */

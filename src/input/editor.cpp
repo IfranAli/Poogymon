@@ -1,5 +1,4 @@
 #include "editor.h"
-#include "../Map.h"
 #include "../InputContext.h"
 #include "dbgmenu.h"
 #include "../Renderer.h"
@@ -23,9 +22,12 @@ namespace editor {
   }
 
   input::InputHandler editor;
-
-  int selected_tile = 0;
-  bool show_tileset = false;
+  namespace {
+    int selected_tile = 0;
+    bool show_tileset = false;
+    RenderManager *p_render_manager = nullptr;
+    map::Map *p_map = nullptr;
+  }
 
   void GetTile() {
     auto x = input::mouse_x;
@@ -151,19 +153,22 @@ namespace editor {
     }
   }
 
-  void Init() {
-    editor.fn[::input::ON_ENABLE] = OnEnable;
-    editor.fn[::input::ON_DISABLE] = OnDisable;
-    editor.fn[::input::UP] = BtnUp;
-    editor.fn[::input::DOWN] = BtnDown;
-    editor.fn[::input::LEFT] = BtnLeft;
-    editor.fn[::input::RIGHT] = BtnRight;
-    editor.fn[::input::START] = debug::open_menu;
-//  editor.[::input::n[SELECT]     = editor::CloseMenu;
-    editor.fn[::input::L] = []() { editor::selected_tile--; };
-    editor.fn[::input::R] = []() { editor::selected_tile++; };
-    editor.fn[::input::MOUSE_R] = editor::GetTile;
-    editor.fn[::input::MOUSE_L] = editor::PlaceTile;
+  void Init(RenderManager *render_manager, map::Map *map) {
+    p_render_manager = render_manager;
+    p_map = map;
+
+    editor::editor.fn[::input::ON_ENABLE] = OnEnable;
+    editor::editor.fn[::input::ON_DISABLE] = OnDisable;
+    editor::editor.fn[::input::UP] = BtnUp;
+    editor::editor.fn[::input::DOWN] = BtnDown;
+    editor::editor.fn[::input::LEFT] = BtnLeft;
+    editor::editor.fn[::input::RIGHT] = BtnRight;
+    editor::editor.fn[::input::START] = debug::open_menu;
+//  editor::editor.[::input::n[SELECT]     = editor::CloseMenu;
+    editor::editor.fn[::input::L] = []() { editor::selected_tile--; };
+    editor::editor.fn[::input::R] = []() { editor::selected_tile++; };
+    editor::editor.fn[::input::MOUSE_R] = editor::GetTile;
+    editor::editor.fn[::input::MOUSE_L] = editor::PlaceTile;
 
     constexpr uint32_t EDITOR_MASK = input::gen_mask(
         {
@@ -180,7 +185,7 @@ namespace editor {
             input::MOUSE_L}
     );
 
-    editor.mask = EDITOR_MASK;
+    editor::editor.mask = EDITOR_MASK;
   }
 
 } /* editor */

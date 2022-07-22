@@ -3,11 +3,13 @@
 #include "../drawable/CharacterPlayer.h"
 #include "../Map.h"
 #include "../Renderer.h"
+#include "../RenderManager.h"
 
 namespace player {
   input::InputHandler ih_player;
   map::Map *map = nullptr;
   CharacterPlayer *character_player = nullptr;
+  RenderManager *p_render_manager = nullptr;
 
   void vy_inc() {
     character_player->velocity_y_ = 1;
@@ -35,7 +37,7 @@ namespace player {
     is_visible = true;
     v_clear();
 
-    render::AddToRenderStack(character_player);
+    p_render_manager->AddToRenderStack(character_player);
     puts("player enabled");
   }
 
@@ -43,7 +45,7 @@ namespace player {
     is_visible = false;
     v_clear();
 
-    render::RemoveFromRenderStack(character_player);
+    p_render_manager->RemoveFromRenderStack(character_player);
     puts("player disabled");
   }
 
@@ -54,9 +56,10 @@ namespace player {
   void set_running() { character_player->is_running_ = true; }
   void set_walking() { character_player->is_running_ = false; }
 
-  void Init(map::Map *p_map, CharacterPlayer *p_player) {
-    map = p_map;
-    character_player = &*p_player;
+  void Init(RenderManager *render_manager, map::Map *p_map_arg, CharacterPlayer *p_player_arg) {
+    p_render_manager = render_manager;
+    map = p_map_arg;
+    character_player = &*p_player_arg;
 
     using namespace input;
     ih_player.fn[ON_ENABLE] = on_enable;

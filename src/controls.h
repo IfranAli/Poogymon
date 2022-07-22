@@ -3,8 +3,9 @@
 #include "Common.h"
 #include "Map.h"
 #include "drawable/CharacterPlayer.h"
+#include "RenderManager.h"
 
 namespace input {
-  void InitInputMaps(map::Map *, CharacterPlayer *player);
+  void InitInputMaps(RenderManager &, map::Map &, CharacterPlayer &player);
 }
 

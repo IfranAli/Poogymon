@@ -9,6 +9,7 @@
 #include "Map.h"
 #include "InputContext.h"
 #include "drawable/CharacterPlayer.h"
+#include "RenderManager.h"
 class Game {
  public:
 
@@ -18,8 +19,11 @@ class Game {
   void Start();
 
  private:
+  bool quit_ = false;
+
   FrameConfig &frame_config_;
   map::Map map_;
+  RenderManager render_manager_;
   input::InputContext input_context_;
   CharacterPlayer player_;
 

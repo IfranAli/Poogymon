@@ -16,7 +16,6 @@
 #include "input/player.h"
 
 namespace {
-  static bool quit = false;
   static const std::string MASTER_FILE_NAME = "01master.map";
 }
 
@@ -29,7 +28,7 @@ Game::Game(FrameConfig &frame_config) :
 
   /* Initialise subsystems */
   if (!dialog::init()) {
-    quit = true;
+    quit_ = true;
     std::cerr << "Failed to Init dialog subsystem " << SDL_GetError() << "\n";
   }
 }
@@ -37,7 +36,7 @@ Game::Game(FrameConfig &frame_config) :
 Game::~Game() = default;
 
 void Game::Start() {
-  input::InitInputMaps(&map_, &player_);
+  input::InitInputMaps(render_manager_, map_, player_);
   sdl::deltatime = 0;
   dialog::add_item(sdl::deltatime, 0, 200);
 
@@ -53,7 +52,7 @@ void Game::GameLoop() {
   SDL_Event event;
   SDL_EventState(SDL_MOUSEMOTION, SDL_IGNORE);
 
-  while (!quit) {
+  while (!quit_) {
     while (SDL_PollEvent(&event) != 0) {
       switch (event.type) {
         case SDL_WINDOWEVENT:
@@ -64,7 +63,7 @@ void Game::GameLoop() {
             });
           }
           break;
-        case SDL_QUIT:quit = true;
+        case SDL_QUIT:quit_ = true;
           break;
         default:input::InputContext::HandleInput(event);
           break;
@@ -85,7 +84,7 @@ void Game::GameLoop() {
       player_.Tick();
     }
 
-    render::DrawStack();
+    render_manager_.DrawStack();
     dialog::update_labels(sdl::deltatime);
     menu::draw();
     editor::DrawTileset();

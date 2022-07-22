@@ -11,9 +11,3 @@ namespace sdl {
   extern float deltatime;
   extern FrameConfig *g_frame_config;
 } /* sdl */
-
-namespace render {
-  Drawable *AddToRenderStack(Drawable *);
-  bool RemoveFromRenderStack(Drawable *);
-  void DrawStack();
-}

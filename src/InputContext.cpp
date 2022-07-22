@@ -23,7 +23,6 @@ namespace input
 
 	InputContext::InputContext() {
 		std::cout << "Input Context Initialised." << std::endl;
-//		input::InitInputMaps();
 	}
 
 	InputContext::~InputContext() = default;

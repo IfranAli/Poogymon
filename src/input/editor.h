@@ -1,13 +1,13 @@
 #pragma once
 
 #include "../Common.h"
+#include "../RenderManager.h"
+#include "../Map.h"
 
 namespace editor {
-void Init();
-void OpenMenu();
+  void Init(RenderManager *render_manager, map::Map *map);
+  void OpenMenu();
 
-
-extern void DrawTileset();
-extern bool show_tileset;
+  extern void DrawTileset();
   extern input::InputHandler editor;
 }

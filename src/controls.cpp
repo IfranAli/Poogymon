@@ -3,15 +3,17 @@
 #include "input/player.h"
 #include "input/text_select.h"
 #include "drawable/CharacterPlayer.h"
+#include "RenderManager.h"
 
 namespace input {
   void InitInputMaps(
-      map::Map *p_map,
-      CharacterPlayer *p_character_player
+      RenderManager &render_manager,
+      map::Map &map,
+      CharacterPlayer &character_player
   ) {
     menu::init_input_maps();
-    editor::Init();
-    player::Init(p_map, p_character_player);
+    editor::Init(&render_manager, &map);
+    player::Init(&render_manager, &map, &character_player);
     text_select::init();
 
     puts("Map initialization complete.");
