@@ -12,7 +12,7 @@ namespace input {
       CharacterPlayer &character_player
   ) {
     menu::init_input_maps();
-    editor::Init(&render_manager, &map);
+    editor::Init(&render_manager, &character_player, &map);
     player::Init(&render_manager, &map, &character_player);
     text_select::init();
 

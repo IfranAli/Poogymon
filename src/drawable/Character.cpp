@@ -52,4 +52,7 @@ void Character::Tick() {
     }
   }
 }
+void Character::ResetSpeed() {
+  movement_.speed = default_movement_speed_;
+}
 

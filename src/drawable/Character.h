@@ -16,6 +16,8 @@ class Character : public Drawable {
   int velocity_x_ = 0;
   int velocity_y_ = 0;
 
+  void ResetSpeed();
+
  protected:
   Animation animation_;
   Movement movement_;

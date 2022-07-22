@@ -20,5 +20,4 @@ class Movement {
   float x = 0;
   float y = 0;
   float speed = 32;
-  const float BASE_SPEED = 0.05f;
 };

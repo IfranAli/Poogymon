@@ -80,9 +80,7 @@ void Game::GameLoop() {
 
     map::active_map->RenderToScreen(true);
 
-    if (player::is_visible) {
-      player_.Tick();
-    }
+    player_.Tick();
 
     render_manager_.DrawStack();
     dialog::update_labels(sdl::deltatime);

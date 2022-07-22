@@ -26,6 +26,7 @@ namespace editor {
     int selected_tile = 0;
     bool show_tileset = false;
     RenderManager *p_render_manager = nullptr;
+    CharacterPlayer *p_character_player = nullptr;
     map::Map *p_map = nullptr;
   }
 
@@ -79,12 +80,18 @@ namespace editor {
           .height = sdl::g_frame_config->GetHeight(),
       });
     }
+
+    p_character_player->GetMovementObject().speed = 16;
+    p_character_player->SetMoveBoundary(0, 0);
   }
 
   void OnDisable() {
     if (editor::show_tileset) {
       editor::show_tileset = false;
       sdl::g_frame_config->RecalculateWindowVariables();
+
+      p_character_player->ResetSpeed();
+      p_character_player->ResetBoundingBox();
     }
   }
 
@@ -130,31 +137,24 @@ namespace editor {
   }
 
   void BtnUp() {
-    if (::map::active_map->CanMoveUp()) {
-//      ::map::MoveSmooth(0, -1, true);
-    }
+    p_character_player->MovePlayer(map::UP);
   }
 
   void BtnDown() {
-    if (::map::active_map->CanMoveDown()) {
-//      ::map::MoveSmooth(0, 1, true);
-    }
+    p_character_player->MovePlayer(map::DOWN);
   }
 
   void BtnLeft() {
-    if (::map::active_map->CanMoveLeft()) {
-//      ::map::MoveSmooth(-1, 0, true);
-    }
+    p_character_player->MovePlayer(map::LEFT);
   }
 
   void BtnRight() {
-    if (::map::active_map->CanMoveRight()) {
-//      ::map::MoveSmooth(1, 0, true);
-    }
+    p_character_player->MovePlayer(map::RIGHT);
   }
 
-  void Init(RenderManager *render_manager, map::Map *map) {
+  void Init(RenderManager *render_manager, CharacterPlayer *character_player, map::Map *map) {
     p_render_manager = render_manager;
+    p_character_player = character_player;
     p_map = map;
 
     editor::editor.fn[::input::ON_ENABLE] = OnEnable;

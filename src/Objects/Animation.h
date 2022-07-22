@@ -14,7 +14,6 @@ class Animation {
 
 	int current_frame {0};
 
-	const float BASE_SPEED = 0.20f;
 	float speed {0.2};
 	float current_frame_delta {0};
 };

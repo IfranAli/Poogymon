@@ -1,9 +1,6 @@
 #include "player.h"
 #include "dbgmenu.h"
-#include "../drawable/CharacterPlayer.h"
-#include "../Map.h"
 #include "../Renderer.h"
-#include "../RenderManager.h"
 
 namespace player {
   input::InputHandler ih_player;
@@ -42,7 +39,7 @@ namespace player {
   }
 
   void on_disable() {
-    is_visible = false;
+//    is_visible = false;
     v_clear();
 
     p_render_manager->RemoveFromRenderStack(character_player);

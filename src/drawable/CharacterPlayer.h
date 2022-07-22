@@ -13,19 +13,23 @@ class CharacterPlayer final : public Character {
 
   void Tick() override;
   void Render() override;
+  void MovePlayer(const map::Direction &direction);
+  void ResetBoundingBox();
+  void SetMoveBoundary(int x, int y);
+  Movement &GetMovementObject();
 
  private:
   map::Map *map_;
-
-  void ResetBoundingBox();
-  void CalculateBoundingBox();
-
-  const char *texture_path_ = "Resource/red.png";
   Texture::Tileset texture_;
   FrameConfig &frame_config_;
 
-  int mov_boundary_x_ = 2;
-  int mov_boundary_y_ = 2;
+  void CalculateBoundingBox();
+
+  const char *texture_path_ = "Resource/red.png";
+  int const default_mov_boundary_ = 2;
+
+  int mov_boundary_x_ = default_mov_boundary_;
+  int mov_boundary_y_ = default_mov_boundary_;
 
   int x_max_{};
   int y_max_{};
