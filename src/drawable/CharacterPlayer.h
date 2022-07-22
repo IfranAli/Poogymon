@@ -13,6 +13,7 @@ class CharacterPlayer final : public Character {
 
   void Tick() override;
   void Render() override;
+  void SetPlayerPosition(int, int);
   void MovePlayer(const map::Direction &direction);
   void ResetBoundingBox();
   void SetMoveBoundary(int x, int y);

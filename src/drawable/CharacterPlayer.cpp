@@ -41,11 +41,7 @@ void CharacterPlayer::ResetBoundingBox() {
   x_max_ = x_min_ + mov_boundary_x_;
   y_max_ = y_min_ + mov_boundary_y_;
 
-  /* Place character inside bounds */
-  Character::movement_.x = static_cast<float>(x_min_);
-  Character::movement_.y = static_cast<float>(y_min_);
-
-  printf("Player - bounding box update: W:%d, H:%d\n", mov_boundary_x_, mov_boundary_y_);
+  SetPlayerPosition(x_min_ + 1, y_min_ + 1);
 }
 
 void CharacterPlayer::CalculateBoundingBox() {
@@ -134,6 +130,7 @@ void CharacterPlayer::Tick() {
 }
 
 void CharacterPlayer::MovePlayer(const map::Direction &direction) {
+  // Doesn't work in editor mode.
   if (movement_.moving) {
     return;
   }
@@ -255,4 +252,8 @@ void CharacterPlayer::SetMoveBoundary(int x, int y) {
   mov_boundary_x_ = x;
   mov_boundary_y_ = y;
   CalculateBoundingBox();
+}
+void CharacterPlayer::SetPlayerPosition(int x, int y) {
+  Character::movement_.x = static_cast<float>(x);
+  Character::movement_.y = static_cast<float>(y);
 }
