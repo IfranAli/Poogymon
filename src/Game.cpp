@@ -9,7 +9,6 @@
 #include "InputContext.h"
 #include "UI/dialog.h"
 #include "Map.h"
-#include "drawable/CharacterPlayer.h"
 #include "Renderer.h"
 #include "UI/menu.h"
 #include "input/editor.h"
@@ -75,10 +74,6 @@ void Game::GameLoop() {
     /* Render and display frame */
     SDL_SetRenderDrawColor(sdl::renderer, 0xFF, 0xFF, 0xFF, 0xFF);
     SDL_RenderClear(sdl::renderer);
-
-    map_.Tick();
-
-    map::active_map->RenderToScreen(true);
 
     player_.Tick();
 

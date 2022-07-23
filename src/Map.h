@@ -4,6 +4,7 @@
 #include <string>
 #include "MapData.h"
 #include "Objects/FrameConfig.h"
+#include "interfaces/Drawable.h"
 
 namespace map {
   enum MapIndex : int {
@@ -30,10 +31,11 @@ namespace map {
     map::MapIndex connection_type{};
   };
 
-  class Map final {
+  class Map: public Drawable {
    public:
     explicit Map(FrameConfig &frame_config);
     ~Map();
+
 
     void Tick() const;
     [[nodiscard]] int GetX() const;
@@ -85,6 +87,7 @@ namespace map {
     void RenderBottom(float x, float y, int w, int h, bool, bool) const;
     void RenderTop(float x, float y, int w, int h, bool, bool) const;
     void RenderBorder(float x, float y, int w, int h, bool, bool) const;
+    void Render() override;
   };
 
 } /* map */

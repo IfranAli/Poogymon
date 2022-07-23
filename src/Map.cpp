@@ -81,6 +81,10 @@ namespace map {
     printf("MAP -dtor\n");
   }
 
+  void Map::Render() {
+    RenderToScreen(true);
+  }
+
   map_data::MapData &Map::GetConnection(MapIndex type) {
     switch (type) {
       case ACTIVE:return map_data_list_[ACTIVE];
@@ -128,9 +132,6 @@ namespace map {
   }
 
   void Map::Tick() const {
-    if (show_tile_set_) {
-      // TODO: Implement Function..
-    }
 
   }
 
