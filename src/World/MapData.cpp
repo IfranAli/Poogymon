@@ -1,5 +1,5 @@
 #include "MapData.h"
-#include "Renderer.h"
+#include "../Renderer.h"
 #include "Map.h"
 
 #include <fstream>

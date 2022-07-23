@@ -3,39 +3,18 @@
 #include <vector>
 #include <string>
 #include "MapData.h"
-#include "Objects/FrameConfig.h"
-#include "interfaces/Drawable.h"
+#include "../Objects/FrameConfig.h"
+#include "../interfaces/Drawable.h"
+#include "Definitions.h"
 
 namespace map {
-  enum MapIndex : int {
-    ACTIVE = 0,
-    LEFT_CONNECTION = 1,
-    RIGHT_CONNECTION = 2,
-    TOP_CONNECTION = 3,
-    BOTTOM_CONNECTION = 4,
-  };
 
-  enum Direction : int {
-    UP,
-    DOWN,
-    LEFT,
-    RIGHT,
-  };
+//  Map *active_map = nullptr;
 
-  class Map;
-  extern Map *active_map;
-
-  struct MapMetaData {
-    std::string filename{};
-    std::vector<std::string> texture_filenames{};
-    map::MapIndex connection_type{};
-  };
-
-  class Map: public Drawable {
+  class Map : public Drawable {
    public:
     explicit Map(FrameConfig &frame_config);
     ~Map();
-
 
     void Tick() const;
     [[nodiscard]] int GetX() const;
@@ -59,7 +38,7 @@ namespace map {
     bool HasConnection(MapIndex);
     void AddMapData(map_data::MapData &map_data);
     void RenderToScreen(bool recalculate = false) const;
-    map_data::MapData& GetActiveMapData();
+    map_data::MapData &GetActiveMapData();
 
     float x_ = 0.0;
     float y_ = 0.0;

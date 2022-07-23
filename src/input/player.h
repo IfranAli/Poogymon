@@ -1,6 +1,6 @@
 #pragma once
 #include "../Common.h"
-#include "../Map.h"
+#include "../World/Map.h"
 #include "../drawable/CharacterPlayer.h"
 #include "../RenderManager.h"
 

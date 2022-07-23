@@ -2,8 +2,7 @@
 #include "editor.h"
 #include "player.h"
 #include "text_select.h"
-#include "../drawable/CharacterPlayer.h"
-#include "../InputContext.h"
+#include "../InputManager.h"
 #include "../UI/menu.h"
 
 #include <vector>

@@ -1,5 +1,5 @@
 #include "editor.h"
-#include "../InputContext.h"
+#include "../InputManager.h"
 #include "dbgmenu.h"
 #include "../Renderer.h"
 #include "../UI/menu.h"

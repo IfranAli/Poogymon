@@ -1,5 +1,5 @@
 #include "menu.h"
-#include "../InputContext.h"
+#include "../InputManager.h"
 #include "../Texture.h"
 #include "dialog.h"
 
@@ -48,6 +48,7 @@ namespace menu {
       }
     }
 
+    // Menu rendered here
     dialog::render_menu(m.config, m.names);
     dialog::set_selectedIndex(m.config, 0);
 

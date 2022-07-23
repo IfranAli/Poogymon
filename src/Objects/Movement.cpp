@@ -1,6 +1,6 @@
 #include "Movement.h"
 #include "../Renderer.h"
-#include "../Map.h"
+#include "../World/Map.h"
 
 Movement::Movement() = default;
 Movement::~Movement() = default;

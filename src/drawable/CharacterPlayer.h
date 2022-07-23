@@ -4,7 +4,7 @@
 #include "Character.h"
 #include "../Tileset.h"
 #include "../Objects/FrameConfig.h"
-#include "../Map.h"
+#include "../World/Map.h"
 
 class CharacterPlayer final : public Character {
  public:

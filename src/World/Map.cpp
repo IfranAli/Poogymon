@@ -1,60 +1,12 @@
 #include "Map.h"
-#include "Renderer.h"
-#include "utility/Utility.h"
+#include "../Renderer.h"
 
 #include <SDL.h>
-#include <iostream>
-#include <sstream>
 #include <utility>
 
 namespace map {
-  int direction = 0;
-  bool moving{false};
-  float x;
-  float y;
   Map *active_map;
 
-  auto index_to_enum = [](int index = 0) -> MapIndex {
-    switch (index) {
-      case 0:return MapIndex::ACTIVE;
-      case 1:return MapIndex::LEFT_CONNECTION;
-      case 2:return MapIndex::RIGHT_CONNECTION;
-      case 3:return MapIndex::TOP_CONNECTION;
-      case 4:return MapIndex::BOTTOM_CONNECTION;
-      default:return MapIndex::ACTIVE;
-    }
-  };
-
-  std::vector<MapMetaData> ParseMapFile(const std::string &filename, size_t sz = 0) {
-    std::ifstream ifs(filename);
-    std::vector<MapMetaData> list{};
-    list.reserve(sz);
-    std::string buffer{};
-
-    auto index = 0;
-    while (std::getline(ifs, buffer)) {
-      if (buffer.empty()) {
-        index++;
-        continue;
-      }
-      std::stringstream ss{buffer};
-      MapMetaData map_meta_data{};
-      map_meta_data.connection_type = index_to_enum(index++);
-      ss >> map_meta_data.filename;
-
-      while (ss >> buffer) {
-        std::string texture_file{buffer};
-        map_meta_data.texture_filenames.emplace_back(texture_file);
-      }
-
-      list.emplace_back(map_meta_data);
-    }
-
-    return list;
-  }
-}
-
-namespace map {
   Map::Map(FrameConfig &frame_config) : frame_config_(frame_config) {
     map_data::TilePattern tile_pattern_1(0);
     map_data::TilePattern tile_pattern_2(2, 2, 1, 1);
@@ -74,7 +26,6 @@ namespace map {
     map_data_list_[ACTIVE].connections_.Up = &map_data_list_[TOP_CONNECTION];
 
     AddMapData(map_data_list_[ACTIVE]);
-    moving = false;
   }
 
   Map::~Map() {
@@ -116,15 +67,6 @@ namespace map {
 
   bool Map::CanMoveRight() const {
     return ((x_ + frame_config_.GetCols() + 1) <= x_max_);
-  }
-
-  bool CanMove(Direction move_direction) {
-    switch (move_direction) {
-      case UP: return active_map->CanMoveUp();
-      case DOWN:return active_map->CanMoveDown();
-      case LEFT:return active_map->CanMoveLeft();
-      case RIGHT:return active_map->CanMoveRight();
-    }
   }
 
   bool Map::HasConnection(MapIndex type) {
@@ -272,8 +214,6 @@ namespace map {
       }
     }
   }
-
-// TODO: Only supports one block movements for now
 
   int Map::GetTileFromMouse(int mx, int my) const {
     return 0;
@@ -545,6 +485,7 @@ namespace map {
         &dest
     );
   }
+
   map_data::MapData &Map::GetActiveMapData() {
     return (this->active_ == nullptr) ? map_data_list_[ACTIVE] : *active_;
   }

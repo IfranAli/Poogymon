@@ -1,5 +1,5 @@
 #include <iostream>
-#include "../src/MapData.h"
+#include "../src/World/MapData.h"
 #include "Random/ClassA.h"
 int main() {
 	ClassA a;

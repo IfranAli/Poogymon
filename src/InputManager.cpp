@@ -1,4 +1,4 @@
-#include "InputContext.h" 
+#include "InputManager.h"
 
 #include <iostream>
 
@@ -21,13 +21,13 @@ namespace input
 	// Current event.
 	SDL_Event current_event;
 
-	InputContext::InputContext() {
+	InputManager::InputManager() {
 		std::cout << "Input Context Initialised." << std::endl;
 	}
 
-	InputContext::~InputContext() = default;
+	InputManager::~InputManager() = default;
 
-	void InputContext::HandleInput (SDL_Event& e)
+	void InputManager::HandleInput (SDL_Event& e)
 	{
 		if( e.type == SDL_KEYDOWN && e.key.repeat == 0 )
 		{
@@ -98,7 +98,7 @@ namespace input
 			ExecuteKey(*p_handler_prev, KEY::ON_DISABLE);
 			ExecuteKey(*p_handler, KEY::ON_ENABLE);
 
-//			printf("InputContext - Switching handlers!!\n");
+//			printf("InputManager - Switching handlers!!\n");
 		}
 	}
 

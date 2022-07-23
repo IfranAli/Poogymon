@@ -6,9 +6,9 @@
 #include <string>
 #include <iostream>
 #include "Game.h"
-#include "InputContext.h"
+#include "InputManager.h"
 #include "UI/dialog.h"
-#include "Map.h"
+#include "World/Map.h"
 #include "Renderer.h"
 #include "UI/menu.h"
 #include "input/editor.h"
@@ -64,7 +64,7 @@ void Game::GameLoop() {
           break;
         case SDL_QUIT:quit_ = true;
           break;
-        default:input::InputContext::HandleInput(event);
+        default:input::InputManager::HandleInput(event);
           break;
       }
     }

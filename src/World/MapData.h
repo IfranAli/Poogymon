@@ -1,7 +1,7 @@
 #pragma once
-#include "Texture.h"
-#include "Tileset.h"
-#include "Objects/FrameConfig.h"
+#include "../Texture.h"
+#include "../Tileset.h"
+#include "../Objects/FrameConfig.h"
 #include <array>
 
 namespace map_data {

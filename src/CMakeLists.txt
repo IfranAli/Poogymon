@@ -1,6 +1,6 @@
 add_executable(game
         Main.cpp
-        InputContext.cpp
+        InputManager.cpp
         Timer.cpp
         Texture.cpp
         Tileset.cpp
@@ -8,8 +8,8 @@ add_executable(game
         UI/dialog.cpp
         UI/menu.cpp
 
-        MapData.cpp
-        Map.cpp
+        World/MapData.cpp
+        World/Map.cpp
 
         Objects/Animation.cpp
         Objects/Movement.cpp
@@ -19,7 +19,14 @@ add_executable(game
         input/dbgmenu.cpp
         input/editor.cpp
         input/player.cpp
-        interfaces/Drawable.h input/text_select.cpp input/text_select.h utility/Utility.cpp utility/Utility.h Game.cpp Game.h Objects/FrameConfig.cpp Objects/FrameConfig.h RenderManager.cpp RenderManager.h)
+        interfaces/Drawable.h
+        input/text_select.cpp input/text_select.h
+        Game.cpp Game.h
+        Objects/FrameConfig.cpp Objects/FrameConfig.h
+        RenderManager.cpp RenderManager.h
+        TextureManager.cpp TextureManager.h
+        World/Definitions.h
+)
 
 
 target_link_libraries(game ${SDL2_LIBRARIES})

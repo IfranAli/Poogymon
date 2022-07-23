@@ -6,10 +6,11 @@
 #define GAME_SRC_GAME_H_
 
 #include "Objects/FrameConfig.h"
-#include "Map.h"
-#include "InputContext.h"
+#include "World/Map.h"
+#include "InputManager.h"
 #include "drawable/CharacterPlayer.h"
 #include "RenderManager.h"
+#include "TextureManager.h"
 class Game {
  public:
 
@@ -23,8 +24,9 @@ class Game {
 
   FrameConfig &frame_config_;
   map::Map map_;
+  TextureManager texture_manager_;
   RenderManager render_manager_;
-  input::InputContext input_context_;
+  input::InputManager input_manager_;
   CharacterPlayer player_;
 
   void GameLoop();
