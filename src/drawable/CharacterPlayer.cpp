@@ -3,8 +3,9 @@
 
 namespace player {
   bool is_visible = false;
-  bool draw_bounds = true;
+  bool draw_bounds = false;
 
+  // todo: Probably pass these in.
   float BASE_MOVEMENT_SPEED = 3.5F;
   float BASE_ANIMATION_SPEED = BASE_MOVEMENT_SPEED * 4.0F;
   float RUNNING_SPEED = 2.0F;
@@ -73,25 +74,26 @@ void CharacterPlayer::Tick() {
     animation_.Tick();
 
     // Stop animations if a map transition has completed
-    if (!movement_.moving) {
+    if (!movement_.moving_) {
       animation_.Stop_animation();
     }
   }
 
   // Do not process movement_ input until map has completed transition animation
-  if (movement_.moving) {
+  if (movement_.moving_) {
     movement_.Step();
 
     // Has movement_ ceased
-    if (!movement_.moving) {
+    if (!movement_.moving_) {
       // Stop all animations
-      if (animation_.currently_playing)
+      if (animation_.currently_playing) {
         animation_.Stop_animation();
+      }
 
       // This is where world map can be gotten.
-//			int player_world_x = movement_.x + map::active_map->GetX();
-//			int player_world_y = movement_.y + map::active_map->GetY();
-      //printf("Player at (%direction, %direction)\n", player_world_x, player_world_y);
+//			int player_world_x = movement_.x_ + map::active_map->GetX();
+//			int player_world_y = movement_.y_ + map::active_map->GetY();
+      //printf("Player at (%direction_, %direction_)\n", player_world_x, player_world_y);
 //			map::active_map->GetActiveMapData().SetTile(player_world_x, player_world_y, 11);
     } else {
       return;
@@ -112,10 +114,10 @@ void CharacterPlayer::Tick() {
 
   if (is_running_) {
     animation_.speed = player::RUN_ANIMATION_SPEED;
-    movement_.speed = player::RUN_MOVEMENT_SPEED;
+    movement_.speed_ = player::RUN_MOVEMENT_SPEED;
   } else {
     animation_.speed = player::BASE_ANIMATION_SPEED;
-    movement_.speed = player::BASE_MOVEMENT_SPEED;
+    movement_.speed_ = player::BASE_MOVEMENT_SPEED;
   }
 
   map::Direction direction =
@@ -131,18 +133,22 @@ void CharacterPlayer::Tick() {
 
 void CharacterPlayer::MovePlayer(const map::Direction &direction) {
   // Doesn't work in editor mode.
-  if (movement_.moving) {
+  if (movement_.moving_) {
     return;
   }
-  int potential_x = map_->GetX() + movement_.x + velocity_x_;
-  int potential_y = map_->GetY() + movement_.y + velocity_y_;
 
-  auto x_pos = static_cast<int>(movement_.x);
-  auto y_pos = static_cast<int>(movement_.y);
+  int current_x = map_->GetX() + movement_.x_;
+  int current_y = map_->GetY() + movement_.y_;
+
+  int potential_x = current_x + velocity_x_;
+  int potential_y = current_y + velocity_y_;
+
+  auto x_pos = static_cast<int>(movement_.x_);
+  auto y_pos = static_cast<int>(movement_.y_);
 
   switch (direction) {
     case map::RIGHT :
-      if (map_->x_ == config::TILE_PER_COLUMN && (movement_.x + velocity_x_) >= x_max_) {
+      if (map_->x_ == config::TILE_PER_COLUMN && (movement_.x_ + velocity_x_) >= x_max_) {
         return;
       }
 
@@ -168,7 +174,7 @@ void CharacterPlayer::MovePlayer(const map::Direction &direction) {
       animation_.Play_animation(4);
       break;
     case map::DOWN:
-      if (map_->y_ == config::TILE_PER_ROW && ((movement_.y + velocity_y_) >= y_max_)) {
+      if (map_->y_ == config::TILE_PER_ROW && ((movement_.y_ + velocity_y_) >= y_max_)) {
         return;
       }
 
@@ -204,8 +210,8 @@ void CharacterPlayer::Render() {
   auto offset_y = frame_config_.GetOffsetY();
 
   const auto TILE_DIM = static_cast<float>(this->frame_config_.GetTileDimension());
-  const float PLAYER_X = static_cast<float>(offset_x) + (movement_.x * TILE_DIM);
-  const float PLAYER_Y = static_cast<float>(offset_y) + (movement_.y * TILE_DIM);
+  const float PLAYER_X = static_cast<float>(offset_x) + (movement_.x_ * TILE_DIM);
+  const float PLAYER_Y = static_cast<float>(offset_y) + (movement_.y_ * TILE_DIM);
   const float OFFSET_Y = 20.0F;
 
   Texture::Render(
@@ -254,6 +260,6 @@ void CharacterPlayer::SetMoveBoundary(int x, int y) {
   CalculateBoundingBox();
 }
 void CharacterPlayer::SetPlayerPosition(int x, int y) {
-  Character::movement_.x = static_cast<float>(x);
-  Character::movement_.y = static_cast<float>(y);
+  Character::movement_.x_ = static_cast<float>(x);
+  Character::movement_.y_ = static_cast<float>(y);
 }

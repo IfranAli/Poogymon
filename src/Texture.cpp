@@ -54,7 +54,7 @@ namespace Texture {
 
 // TODO: ???
   void Render(Texture &t, SDL_Renderer &r, int x, int y, SDL_Rect *src) {
-//    SDL_Rect dest = {x, y, t.mWidth, t.mHeight};
+//    SDL_Rect dest = {x_, y_, t.mWidth, t.mHeight};
 //
 //    if (src != NULL) {
 ////      dest.w = src->w;

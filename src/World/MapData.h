@@ -57,7 +57,7 @@ namespace map_data {
     int GetTile(int col, int row);
     void SetTile(int col, int row, int tile);
     void RenderTile(int col, int row);
-    bool IsValidMap();
+    bool IsValidMap() const;
 
     [[nodiscard]] int GetMapWidth() const;
     [[nodiscard]] int GetMapHeight() const;

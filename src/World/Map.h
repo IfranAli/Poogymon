@@ -43,13 +43,13 @@ namespace map {
     float x_ = 0.0;
     float y_ = 0.0;
 
+    map_data::MapData *active_ = nullptr;
    private:
     FrameConfig &frame_config_;
 
     map_data::TilePattern border_tile_pattern_ = map_data::TilePattern(4, 5, 12, 13);
     map_data::MapData border_map_ = map_data::MapData("tile.png", border_tile_pattern_);
 
-    map_data::MapData *active_ = nullptr;
     map_data::MapData map_data_list_[5];
 
     bool show_tile_set_ = true;

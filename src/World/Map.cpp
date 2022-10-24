@@ -112,7 +112,7 @@ namespace map {
 
   int Map::GetY() const { return y_; }
 
-  void Map::RenderToScreen(bool recalculate) const {
+  void Map::RenderToScreen(bool  /*recalculate*/) const {
     if (active_ == nullptr) {
       return;
     }
@@ -219,8 +219,8 @@ namespace map {
     return 0;
 //    mx = (mx - config::SCREEN_OFFSET_X) / config::TILE_DIM;
 //    my = (my - config::SCREEN_OFFSET_Y) / config::TILE_DIM;
-//    my += y;
-//    mx += x;
+//    my += y_;
+//    mx += x_;
 //
 //    if (mx > (int) total_width_ || my > (int) total_height_) {
 //      printf("Invalid Mouse X:%d, Y:%d\n", mx, my);
@@ -295,12 +295,7 @@ namespace map {
     dest.x = frame_config_.GetOffsetX() + x;
     dest.y = frame_config_.GetOffsetY() + y;
 
-    SDL_RenderCopy(
-        sdl::renderer,
-        map::active_map->active_->map_texture_.mTexture,
-        &src,
-        &dest
-    );
+    SDL_RenderCopy(sdl::renderer, map::active_map->active_->map_texture_.mTexture, &src, &dest);
   }
   void Map::RenderLeft(float x,
                        float y,
@@ -326,20 +321,10 @@ namespace map {
     dest.x = frame_config_.GetOffsetX() + x;
     dest.y = frame_config_.GetOffsetY() + y;
 
-    if (active_map->HasConnection(LEFT_CONNECTION)) {
-      SDL_RenderCopy(
-          sdl::renderer,
-          active_map->active_->connections_.Left->map_texture_.mTexture,
-          &src,
-          &dest
-      );
+    if (active_map->HasConnection(LEFT_CONNECTION) && active_map->active_->connections_.Left) {
+      SDL_RenderCopy(sdl::renderer, active_map->active_->connections_.Left->map_texture_.mTexture, &src, &dest);
     } else {
-      SDL_RenderCopy(
-          sdl::renderer,
-          border_map_.map_texture_.mTexture,
-          &src,
-          &dest
-      );
+      SDL_RenderCopy(sdl::renderer, border_map_.map_texture_.mTexture, &src, &dest);
     }
   }
 
@@ -367,20 +352,10 @@ namespace map {
     dest.x = frame_config_.GetOffsetX() + x;
     dest.y = frame_config_.GetOffsetY() + y;
 
-    if (active_map->HasConnection(RIGHT_CONNECTION)) {
-      SDL_RenderCopy(
-          sdl::renderer,
-          active_map->active_->connections_.Right->map_texture_.mTexture,
-          &src,
-          &dest
-      );
+    if (active_map->HasConnection(RIGHT_CONNECTION) && active_map->active_->connections_.Right) {
+      SDL_RenderCopy(sdl::renderer, active_map->active_->connections_.Right->map_texture_.mTexture, &src, &dest);
     } else {
-      SDL_RenderCopy(
-          sdl::renderer,
-          border_map_.map_texture_.mTexture,
-          &src,
-          &dest
-      );
+      SDL_RenderCopy(sdl::renderer, border_map_.map_texture_.mTexture, &src, &dest);
     }
   }
   void Map::RenderBottom(float x,
@@ -408,20 +383,10 @@ namespace map {
     dest.x = frame_config_.GetOffsetX() + x;
     dest.y = frame_config_.GetOffsetY() + y;
 
-    if (active_map->HasConnection(BOTTOM_CONNECTION)) {
-      SDL_RenderCopy(
-          sdl::renderer,
-          active_map->active_->connections_.Down->map_texture_.mTexture,
-          &src,
-          &dest
-      );
+    if (active_map->HasConnection(BOTTOM_CONNECTION) && active_map->active_->connections_.Down) {
+      SDL_RenderCopy(sdl::renderer, active_map->active_->connections_.Down->map_texture_.mTexture, &src, &dest);
     } else {
-      SDL_RenderCopy(
-          sdl::renderer,
-          border_map_.map_texture_.mTexture,
-          &src,
-          &dest
-      );
+      SDL_RenderCopy(sdl::renderer, border_map_.map_texture_.mTexture, &src, &dest);
     }
   }
 
@@ -445,12 +410,11 @@ namespace map {
     dest.x = frame_config_.GetOffsetX() + x;
     dest.y = frame_config_.GetOffsetY() + y;
 
-    SDL_RenderCopy(
-        sdl::renderer,
-        active_map->active_->connections_.Up->map_texture_.mTexture,
-        &src,
-        &dest
-    );
+    if (active_map->HasConnection(TOP_CONNECTION) && active_map->active_->connections_.Up) {
+      SDL_RenderCopy(sdl::renderer, active_map->active_->connections_.Up->map_texture_.mTexture, &src, &dest);
+    } else {
+      SDL_RenderCopy(sdl::renderer, border_map_.map_texture_.mTexture, &src, &dest);
+    }
   }
 
   void Map::RenderBorder(float x,
@@ -478,12 +442,7 @@ namespace map {
     dest.x = frame_config_.GetOffsetX() + x;
     dest.y = frame_config_.GetOffsetY() + y;
 
-    SDL_RenderCopy(
-        sdl::renderer,
-        border_map_.map_texture_.mTexture,
-        &src,
-        &dest
-    );
+    SDL_RenderCopy(sdl::renderer, border_map_.map_texture_.mTexture, &src, &dest);
   }
 
   map_data::MapData &Map::GetActiveMapData() {

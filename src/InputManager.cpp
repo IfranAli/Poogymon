@@ -14,7 +14,7 @@ namespace input
 	uint32_t uAcceptKeysMask = 0; 
 	KEY current_key = KEY::NONE;
 
-	// Holds captured mouse x, y.
+	// Holds captured mouse x_, y_.
 	int mouse_x {0};
 	int mouse_y {0};
 

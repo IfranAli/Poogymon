@@ -81,7 +81,7 @@ namespace editor {
       });
     }
 
-    p_character_player->GetMovementObject().speed = 16;
+    p_character_player->GetMovementObject().speed_ = 16;
     p_character_player->SetMoveBoundary(0, 0);
   }
 

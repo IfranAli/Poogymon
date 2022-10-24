@@ -73,7 +73,7 @@ namespace map_data {
     SDL_Rect dest_tile = src_tile;
     auto tileset_info = Texture::getTilesetInfo(&map_tileset_.texture, dim, dim);
 
-    // Set render target to texture
+    // Set render target_ to texture
     SDL_SetRenderTarget(sdl::renderer, map_texture_.mTexture);
 
     for (int i = 0; i < frame_config.GetRows(); ++i) {
@@ -311,7 +311,7 @@ namespace map_data {
 
     SDL_SetRenderTarget(sdl::renderer, NULL);
   }
-  bool MapData::IsValidMap() {
+  bool MapData::IsValidMap() const {
     return (map_width_ != 0) && (map_height_ != 0);
   }
   int MapData::GetMapWidth() const {

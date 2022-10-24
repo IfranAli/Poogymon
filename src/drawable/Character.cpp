@@ -3,8 +3,8 @@
 #include "Character.h"
 
 Character::Character() {
-  /* Player speed and animation speed */
-  movement_.speed = default_movement_speed_;
+  /* Player speed_ and animation speed_ */
+  movement_.speed_ = default_movement_speed_;
   animation_.Set_animation_speed(default_animation_speed_);
 }
 
@@ -15,26 +15,26 @@ void Character::Tick() {
     animation_.Tick();
   }
 
-  if (movement_.moving) {
+  if (movement_.moving_) {
     movement_.Step();
 
     // Has movement_ ceased
-    if (!movement_.moving) {
+    if (!movement_.moving_) {
 
       // Stop all animations
       if (animation_.currently_playing) {
         animation_.Stop_animation();
       }
 
-      printf("Player X: %f, Y: %f\n", movement_.x, movement_.y);
+      printf("Player X: %f, Y: %f\n", movement_.x_, movement_.y_);
     }
 
   } else if (velocity_x_ != 0 || velocity_y_ != 0) {
 
     movement_.MoveSmooth(velocity_x_, velocity_y_);
 
-    if (movement_.direction == 1) {
-      if (movement_.pole > 0) {
+    if (movement_.direction_ == 1) {
+      if (movement_.pole_ > 0) {
         puts("Moving RIGHT\n");
         animation_.Play_animation(8);
       } else {
@@ -42,7 +42,7 @@ void Character::Tick() {
         animation_.Play_animation(0);
       }
     } else {
-      if (movement_.pole > 0) {
+      if (movement_.pole_ > 0) {
         puts("Moving LEFT\n");
         animation_.Play_animation(4);
       } else {
@@ -53,6 +53,6 @@ void Character::Tick() {
   }
 }
 void Character::ResetSpeed() {
-  movement_.speed = default_movement_speed_;
+  movement_.speed_ = default_movement_speed_;
 }
 

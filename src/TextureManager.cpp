@@ -13,5 +13,8 @@ Texture::Texture &TextureManager::GetTextureByName(std::string &) {
   return g_temp_texture;
 }
 std::vector<std::string> TextureManager::getAvailableTexturesAsName() {
+
+  // Scan "./Resources/" for .png files.
+
   return std::vector<std::string>();
 }
